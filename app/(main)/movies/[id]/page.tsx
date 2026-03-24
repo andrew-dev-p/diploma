@@ -57,23 +57,26 @@ export default async function MovieDetailPage({
   const { id } = await params
   const tmdbId = parseInt(id)
 
-  let movie
-  let credits
-  let videos
-  let similar
-  try {
-    ;[movie, credits, videos, similar] = await Promise.all([
+  // Parallelize TMDB data + auth check simultaneously
+  const [tmdbResult, authResult] = await Promise.allSettled([
+    Promise.all([
       getMovie(tmdbId),
       getMovieCredits(tmdbId),
       getMovieVideos(tmdbId),
       getSimilarMovies(tmdbId),
-    ])
-  } catch {
+    ]),
+    auth(),
+  ])
+
+  if (tmdbResult.status === "rejected") {
     notFound()
   }
 
-  // Auth-dependent data
-  const { userId: clerkId } = await auth()
+  const [movie, credits, videos, similar] = tmdbResult.value
+
+  // Auth-dependent data (fetched in parallel with TMDB above)
+  const clerkId =
+    authResult.status === "fulfilled" ? authResult.value.userId : null
   let userRating: number | null = null
   let inWatchlist = false
   let watched = false

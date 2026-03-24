@@ -8,26 +8,10 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { AITrendingBanner } from "@/components/ai-trending-banner"
 
 export default async function HomePage() {
-  let trendingMovies: Awaited<ReturnType<typeof getTrending>>["results"] = []
-  try {
-    const trending = await getTrending("week")
-    trendingMovies = trending.results.slice(0, 20)
-  } catch {
-    // TMDB may fail if no API key set
-  }
-
-  let featuredLists: {
-    id: string
-    name: string
-    description: string | null
-    slug: string
-    user: { username: string | null; imageUrl: string | null }
-    items: { posterPath: string | null }[]
-    tags: { name: string }[]
-    _count: { likes: number; items: number }
-  }[] = []
-  try {
-    featuredLists = await db.movieList.findMany({
+  // Parallelize all data fetching for faster page load
+  const [trendingResult, listsResult] = await Promise.allSettled([
+    getTrending("week"),
+    db.movieList.findMany({
       where: { isPublic: true },
       include: {
         user: { select: { username: true, imageUrl: true } },
@@ -41,10 +25,16 @@ export default async function HomePage() {
       },
       orderBy: { updatedAt: "desc" },
       take: 6,
-    })
-  } catch {
-    // DB may not be connected yet
-  }
+    }),
+  ])
+
+  const trendingMovies =
+    trendingResult.status === "fulfilled"
+      ? trendingResult.value.results.slice(0, 20)
+      : []
+
+  const featuredLists =
+    listsResult.status === "fulfilled" ? listsResult.value : []
 
   return (
     <div>

@@ -46,19 +46,16 @@ export default async function ExplorePage({
     }),
     db.movieList.count({ where }),
     db.listTag.findMany({
+      distinct: ["name"],
       select: { name: true },
+      take: 15,
     }),
   ])
 
-  // Aggregate tag counts
-  const tagCountMap: Record<string, number> = {}
-  for (const t of popularTags) {
-    tagCountMap[t.name] = (tagCountMap[t.name] ?? 0) + 1
-  }
-  const aggregatedTags = Object.entries(tagCountMap)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 15)
-    .map(([name, count]) => ({ name, _count: { name: count } }))
+  const aggregatedTags = popularTags.map((t) => ({
+    name: t.name,
+    _count: { name: 1 },
+  }))
 
   const totalPages = Math.ceil(total / perPage)
 
