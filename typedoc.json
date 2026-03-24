@@ -1,0 +1,24 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "lib/ai.ts",
+    "lib/db.ts",
+    "lib/tmdb.ts",
+    "lib/user-sync.ts",
+    "lib/utils.ts",
+    "lib/actions/list-actions.ts",
+    "lib/actions/movie-actions.ts",
+    "lib/actions/comment-actions.ts"
+  ],
+  "out": "docs-generated",
+  "name": "CineList API Documentation",
+  "readme": "none",
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "includeVersion": true,
+  "categorizeByGroup": true,
+  "navigationLinks": {
+    "GitHub": "https://github.com/andrew-dev-p/diploma",
+    "CineList": "https://cinelist.vercel.app"
+  }
+}

@@ -1,0 +1,440 @@
+openapi: 3.1.0
+info:
+  title: CineList API
+  description: |
+    REST API for CineList — a web application for creating and sharing movie lists.
+    Includes TMDB proxy endpoints, AI-powered content generation, and webhook integrations.
+  version: 1.0.0
+  contact:
+    name: Andrii Popov
+    email: andriipopov.dev@gmail.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3000
+    description: Development
+  - url: https://cinelist.vercel.app
+    description: Production
+
+tags:
+  - name: Movies
+    description: TMDB movie data proxy endpoints
+  - name: AI
+    description: AI-powered content generation via Google Gemini
+  - name: Webhooks
+    description: External service webhooks
+
+paths:
+  /api/movies/search:
+    get:
+      tags: [Movies]
+      summary: Search movies by title
+      description: Proxies TMDB search/movie endpoint with caching.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Search query string
+          example: "Inception"
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+          description: Page number for pagination
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TMDBSearchResult"
+              example:
+                page: 1
+                total_results: 5
+                total_pages: 1
+                results:
+                  - id: 27205
+                    title: "Inception"
+                    overview: "A thief who steals corporate secrets..."
+                    poster_path: "/oYuLEt3zVCKq57qu2F8dT7NIa6f.jpg"
+                    release_date: "2010-07-15"
+                    vote_average: 8.4
+        "500":
+          description: TMDB API error
+
+  /api/movies/trending:
+    get:
+      tags: [Movies]
+      summary: Get trending movies
+      description: Returns trending movies for the current week from TMDB.
+      responses:
+        "200":
+          description: Trending movies list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TMDBSearchResult"
+        "500":
+          description: TMDB API error
+
+  /api/movies/genres:
+    get:
+      tags: [Movies]
+      summary: Get all movie genres
+      description: Returns the full list of TMDB movie genres.
+      responses:
+        "200":
+          description: Genres list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  genres:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/TMDBGenre"
+              example:
+                genres:
+                  - id: 28
+                    name: "Action"
+                  - id: 35
+                    name: "Comedy"
+
+  /api/movies/discover:
+    get:
+      tags: [Movies]
+      summary: Discover movies with filters
+      description: |
+        Advanced movie discovery with genre, year, rating, and sort filters.
+        Proxies TMDB discover/movie endpoint.
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            default: "popularity.desc"
+          example: "vote_average.desc"
+        - name: with_genres
+          in: query
+          schema:
+            type: string
+          description: Comma-separated genre IDs
+          example: "28,12"
+        - name: primary_release_date.gte
+          in: query
+          schema:
+            type: string
+            format: date
+          example: "2020-01-01"
+        - name: primary_release_date.lte
+          in: query
+          schema:
+            type: string
+            format: date
+          example: "2024-12-31"
+        - name: vote_average.gte
+          in: query
+          schema:
+            type: string
+          example: "7.0"
+        - name: vote_count.gte
+          in: query
+          schema:
+            type: string
+          example: "100"
+      responses:
+        "200":
+          description: Filtered movie results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TMDBSearchResult"
+
+  /api/movies/{id}:
+    get:
+      tags: [Movies]
+      summary: Get movie details by ID
+      description: Returns full movie details from TMDB including runtime, budget, and revenue.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 27205
+      responses:
+        "200":
+          description: Movie details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TMDBMovie"
+        "500":
+          description: Movie not found or TMDB error
+
+  /api/ai/generate-description:
+    post:
+      tags: [AI]
+      summary: Generate AI description for a movie list
+      description: |
+        Uses Google Gemini to generate a 2-3 sentence thematic description
+        for a movie list based on its name and movies.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [listName, movies]
+              properties:
+                listName:
+                  type: string
+                  example: "Mind-Bending Thrillers"
+                movies:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      title:
+                        type: string
+                      year:
+                        type: string
+                  example:
+                    - title: "Inception"
+                      year: "2010"
+                    - title: "Memento"
+                      year: "2000"
+      responses:
+        "200":
+          description: Generated description
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  description:
+                    type: string
+              example:
+                description: "A curated journey into the labyrinth of the mind, where reality bends and nothing is as it seems."
+        "500":
+          description: AI generation failed
+
+  /api/ai/recommendations:
+    post:
+      tags: [AI]
+      summary: Get AI movie recommendations
+      description: |
+        Uses Google Gemini to suggest 5 movies similar to the provided list.
+        Returns structured JSON with title and year for each recommendation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [movies]
+              properties:
+                movies:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      title:
+                        type: string
+                      year:
+                        type: string
+      responses:
+        "200":
+          description: Movie recommendations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  recommendations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        title:
+                          type: string
+                        year:
+                          type: string
+              example:
+                recommendations:
+                  - title: "Shutter Island"
+                    year: "2010"
+                  - title: "Interstellar"
+                    year: "2014"
+
+  /api/ai/trending-banner:
+    get:
+      tags: [AI]
+      summary: Get AI-generated trending insight
+      description: |
+        Fetches current trending movies from TMDB, then uses Google Gemini
+        to generate a witty headline and movie pick of the week.
+      responses:
+        "200":
+          description: Trending banner data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  headline:
+                    type: string
+                  pickTitle:
+                    type: string
+                  pickReason:
+                    type: string
+                  pickMovie:
+                    $ref: "#/components/schemas/TMDBMovie"
+              example:
+                headline: "Sci-fi is having a moment this week"
+                pickTitle: "Dune: Part Two"
+                pickReason: "An epic continuation that rewards patient viewers"
+        "500":
+          description: AI or TMDB error
+
+  /api/ai/list-suggestions:
+    post:
+      tags: [AI]
+      summary: Get AI suggestions for a movie list
+      description: |
+        Suggests 3 movies that would complement an existing list,
+        based on the list name, description, and current movies.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [listName, movies]
+              properties:
+                listName:
+                  type: string
+                listDescription:
+                  type: string
+                  nullable: true
+                movies:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      title:
+                        type: string
+                      year:
+                        type: string
+      responses:
+        "200":
+          description: Suggested movies
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  suggestions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        title:
+                          type: string
+                        year:
+                          type: string
+                        reason:
+                          type: string
+
+  /api/webhooks/clerk:
+    post:
+      tags: [Webhooks]
+      summary: Clerk webhook endpoint
+      description: |
+        Receives webhook events from Clerk for user lifecycle management.
+        Handles user.created, user.updated, and user.deleted events
+        to sync user data with the local PostgreSQL database.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Svix-signed Clerk webhook payload
+      responses:
+        "200":
+          description: Webhook processed
+        "400":
+          description: Invalid webhook signature
+
+components:
+  schemas:
+    TMDBMovie:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: TMDB unique identifier
+        title:
+          type: string
+        overview:
+          type: string
+        poster_path:
+          type: string
+          nullable: true
+          description: Poster image path (prepend https://image.tmdb.org/t/p/w500)
+        backdrop_path:
+          type: string
+          nullable: true
+        release_date:
+          type: string
+          format: date
+        vote_average:
+          type: number
+          format: float
+        vote_count:
+          type: integer
+        runtime:
+          type: integer
+          nullable: true
+          description: Runtime in minutes (only in detail endpoint)
+        budget:
+          type: integer
+          nullable: true
+        revenue:
+          type: integer
+          nullable: true
+
+    TMDBSearchResult:
+      type: object
+      properties:
+        page:
+          type: integer
+        results:
+          type: array
+          items:
+            $ref: "#/components/schemas/TMDBMovie"
+        total_pages:
+          type: integer
+        total_results:
+          type: integer
+
+    TMDBGenre:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string

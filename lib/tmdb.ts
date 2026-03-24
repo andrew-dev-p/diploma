@@ -49,7 +49,7 @@ interface TMDBFetchOptions {
  * Internal fetch wrapper that handles TMDB authentication, URL construction,
  * query-string serialisation, caching, and error handling.
  *
- * @typeParam T - The expected JSON response shape.
+ * @template T - The expected JSON response shape.
  * @param options - The request path and optional query parameters.
  * @returns A promise that resolves to the parsed JSON body typed as `T`.
  * @throws {Error} When the response status is not OK.
