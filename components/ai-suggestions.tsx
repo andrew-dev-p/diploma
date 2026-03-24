@@ -4,7 +4,6 @@ import { useState, useCallback } from "react";
 import Image from "next/image";
 import { tmdbImageUrl } from "@/lib/tmdb";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
