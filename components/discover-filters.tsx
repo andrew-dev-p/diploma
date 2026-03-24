@@ -1,25 +1,25 @@
-"use client";
+"use client"
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback } from "react";
-import { Button } from "@/components/ui/button";
+import { useRouter, useSearchParams } from "next/navigation"
+import { useCallback } from "react"
+import { Button } from "@/components/ui/button"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+} from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
 
 interface DiscoverFiltersProps {
-  genres: { id: number; name: string }[];
-  currentGenre?: string;
-  currentYearFrom?: string;
-  currentYearTo?: string;
-  currentRatingMin?: string;
-  currentSort?: string;
+  genres: { id: number; name: string }[]
+  currentGenre?: string
+  currentYearFrom?: string
+  currentYearTo?: string
+  currentRatingMin?: string
+  currentSort?: string
 }
 
 const sortOptions = [
@@ -28,7 +28,7 @@ const sortOptions = [
   { value: "primary_release_date.desc", label: "Newest" },
   { value: "primary_release_date.asc", label: "Oldest" },
   { value: "revenue.desc", label: "Highest Revenue" },
-];
+]
 
 export function DiscoverFilters({
   genres,
@@ -38,35 +38,38 @@ export function DiscoverFilters({
   currentRatingMin,
   currentSort,
 }: DiscoverFiltersProps) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const router = useRouter()
+  const searchParams = useSearchParams()
 
   const updateFilter = useCallback(
     (key: string, value: string | undefined) => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(searchParams.toString())
       if (value && value !== "all") {
-        params.set(key, value);
+        params.set(key, value)
       } else {
-        params.delete(key);
+        params.delete(key)
       }
-      params.delete("page"); // Reset to page 1
-      router.push(`/discover?${params.toString()}`);
+      params.delete("page") // Reset to page 1
+      router.push(`/discover?${params.toString()}`)
     },
     [router, searchParams]
-  );
+  )
 
   const clearAll = useCallback(() => {
-    router.push("/discover");
-  }, [router]);
+    router.push("/discover")
+  }, [router])
 
-  const hasFilters = currentGenre || currentYearFrom || currentYearTo || currentRatingMin;
+  const hasFilters =
+    currentGenre || currentYearFrom || currentYearTo || currentRatingMin
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-end gap-3">
         {/* Genre */}
         <div className="space-y-1.5">
-          <label className="text-muted-foreground text-xs font-medium">Genre</label>
+          <label className="text-xs font-medium text-muted-foreground">
+            Genre
+          </label>
           <Select
             value={currentGenre ?? "all"}
             onValueChange={(v) => updateFilter("genre", v)}
@@ -87,7 +90,9 @@ export function DiscoverFilters({
 
         {/* Year range */}
         <div className="space-y-1.5">
-          <label className="text-muted-foreground text-xs font-medium">Year From</label>
+          <label className="text-xs font-medium text-muted-foreground">
+            Year From
+          </label>
           <Input
             type="number"
             min="1900"
@@ -95,16 +100,23 @@ export function DiscoverFilters({
             placeholder="1900"
             className="w-[100px]"
             defaultValue={currentYearFrom ?? ""}
-            onBlur={(e) => updateFilter("year_from", e.target.value || undefined)}
+            onBlur={(e) =>
+              updateFilter("year_from", e.target.value || undefined)
+            }
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                updateFilter("year_from", (e.target as HTMLInputElement).value || undefined);
+                updateFilter(
+                  "year_from",
+                  (e.target as HTMLInputElement).value || undefined
+                )
               }
             }}
           />
         </div>
         <div className="space-y-1.5">
-          <label className="text-muted-foreground text-xs font-medium">Year To</label>
+          <label className="text-xs font-medium text-muted-foreground">
+            Year To
+          </label>
           <Input
             type="number"
             min="1900"
@@ -115,7 +127,10 @@ export function DiscoverFilters({
             onBlur={(e) => updateFilter("year_to", e.target.value || undefined)}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                updateFilter("year_to", (e.target as HTMLInputElement).value || undefined);
+                updateFilter(
+                  "year_to",
+                  (e.target as HTMLInputElement).value || undefined
+                )
               }
             }}
           />
@@ -123,7 +138,9 @@ export function DiscoverFilters({
 
         {/* Min rating */}
         <div className="space-y-1.5">
-          <label className="text-muted-foreground text-xs font-medium">Min Rating</label>
+          <label className="text-xs font-medium text-muted-foreground">
+            Min Rating
+          </label>
           <Select
             value={currentRatingMin ?? "all"}
             onValueChange={(v) => updateFilter("rating_min", v)}
@@ -144,7 +161,9 @@ export function DiscoverFilters({
 
         {/* Sort */}
         <div className="space-y-1.5">
-          <label className="text-muted-foreground text-xs font-medium">Sort By</label>
+          <label className="text-xs font-medium text-muted-foreground">
+            Sort By
+          </label>
           <Select
             value={currentSort ?? "popularity.desc"}
             onValueChange={(v) => updateFilter("sort", v)}
@@ -219,5 +238,5 @@ export function DiscoverFilters({
         </div>
       )}
     </div>
-  );
+  )
 }

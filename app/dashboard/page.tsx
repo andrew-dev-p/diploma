@@ -1,34 +1,36 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { ListCard } from "@/components/list-card";
-import { ListTemplates } from "@/components/list-templates";
-import { syncUser } from "@/lib/user-sync";
-import { db } from "@/lib/db";
-import { redirect } from "next/navigation";
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { ListCard } from "@/components/list-card"
+import { ListTemplates } from "@/components/list-templates"
+import { syncUser } from "@/lib/user-sync"
+import { db } from "@/lib/db"
+import { redirect } from "next/navigation"
 
 export default async function DashboardPage() {
-  const user = await syncUser();
-  if (!user) redirect("/sign-in");
+  const user = await syncUser()
+  if (!user) redirect("/sign-in")
 
-  const [lists, watchlistCount, historyCount, ratingsCount] = await Promise.all([
-    db.movieList.findMany({
-      where: { userId: user.id },
-      include: {
-        items: {
-          take: 4,
-          orderBy: { order: "asc" },
-          select: { posterPath: true },
+  const [lists, watchlistCount, historyCount, ratingsCount] = await Promise.all(
+    [
+      db.movieList.findMany({
+        where: { userId: user.id },
+        include: {
+          items: {
+            take: 4,
+            orderBy: { order: "asc" },
+            select: { posterPath: true },
+          },
+          tags: { select: { name: true } },
+          _count: { select: { likes: true, items: true } },
         },
-        tags: { select: { name: true } },
-        _count: { select: { likes: true, items: true } },
-      },
-      orderBy: { updatedAt: "desc" },
-    }),
-    db.watchlistItem.count({ where: { userId: user.id } }),
-    db.watchHistoryItem.count({ where: { userId: user.id } }),
-    db.movieRating.count({ where: { userId: user.id } }),
-  ]);
+        orderBy: { updatedAt: "desc" },
+      }),
+      db.watchlistItem.count({ where: { userId: user.id } }),
+      db.watchHistoryItem.count({ where: { userId: user.id } }),
+      db.movieRating.count({ where: { userId: user.id } }),
+    ]
+  )
 
   return (
     <div>
@@ -37,32 +39,34 @@ export default async function DashboardPage() {
         <Link href="/dashboard" className="block">
           <Card className="transition-shadow hover:shadow-md">
             <CardContent className="p-4 text-center">
-              <p className="text-primary text-2xl font-bold">{lists.length}</p>
-              <p className="text-muted-foreground text-xs">Lists</p>
+              <p className="text-2xl font-bold text-primary">{lists.length}</p>
+              <p className="text-xs text-muted-foreground">Lists</p>
             </CardContent>
           </Card>
         </Link>
         <Link href="/dashboard/watchlist" className="block">
           <Card className="transition-shadow hover:shadow-md">
             <CardContent className="p-4 text-center">
-              <p className="text-primary text-2xl font-bold">{watchlistCount}</p>
-              <p className="text-muted-foreground text-xs">Watchlist</p>
+              <p className="text-2xl font-bold text-primary">
+                {watchlistCount}
+              </p>
+              <p className="text-xs text-muted-foreground">Watchlist</p>
             </CardContent>
           </Card>
         </Link>
         <Link href="/dashboard/history" className="block">
           <Card className="transition-shadow hover:shadow-md">
             <CardContent className="p-4 text-center">
-              <p className="text-primary text-2xl font-bold">{historyCount}</p>
-              <p className="text-muted-foreground text-xs">Watched</p>
+              <p className="text-2xl font-bold text-primary">{historyCount}</p>
+              <p className="text-xs text-muted-foreground">Watched</p>
             </CardContent>
           </Card>
         </Link>
         <Link href="/dashboard/history" className="block">
           <Card className="transition-shadow hover:shadow-md">
             <CardContent className="p-4 text-center">
-              <p className="text-primary text-2xl font-bold">{ratingsCount}</p>
-              <p className="text-muted-foreground text-xs">Rated</p>
+              <p className="text-2xl font-bold text-primary">{ratingsCount}</p>
+              <p className="text-xs text-muted-foreground">Rated</p>
             </CardContent>
           </Card>
         </Link>
@@ -71,7 +75,7 @@ export default async function DashboardPage() {
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="font-heading text-3xl font-bold">My Lists</h1>
-          <p className="text-muted-foreground mt-1 text-sm">
+          <p className="mt-1 text-sm text-muted-foreground">
             {lists.length} {lists.length === 1 ? "list" : "lists"} created
           </p>
         </div>
@@ -112,15 +116,15 @@ export default async function DashboardPage() {
               strokeWidth="1"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="text-muted-foreground/50 mb-4"
+              className="mb-4 text-muted-foreground/50"
             >
               <rect x="2" y="6" width="14" height="12" rx="2" />
               <path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5" />
             </svg>
-            <h3 className="font-heading mb-1 text-lg font-semibold">
+            <h3 className="mb-1 font-heading text-lg font-semibold">
               No lists yet
             </h3>
-            <p className="text-muted-foreground mb-4 text-sm">
+            <p className="mb-4 text-sm text-muted-foreground">
               Create your first movie list to get started.
             </p>
             <Link href="/dashboard/lists/new">
@@ -147,5 +151,5 @@ export default async function DashboardPage() {
         </div>
       )}
     </div>
-  );
+  )
 }

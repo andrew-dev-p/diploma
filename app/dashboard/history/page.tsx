@@ -1,14 +1,14 @@
-import { redirect } from "next/navigation";
-import { syncUser } from "@/lib/user-sync";
-import { db } from "@/lib/db";
-import { MovieCard } from "@/components/movie-card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { getGenres } from "@/lib/tmdb";
+import { redirect } from "next/navigation"
+import { syncUser } from "@/lib/user-sync"
+import { db } from "@/lib/db"
+import { MovieCard } from "@/components/movie-card"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import { getGenres } from "@/lib/tmdb"
 
 export default async function HistoryPage() {
-  const user = await syncUser();
-  if (!user) redirect("/sign-in");
+  const user = await syncUser()
+  if (!user) redirect("/sign-in")
 
   const [items, ratings, genresData] = await Promise.all([
     db.watchHistoryItem.findMany({
@@ -19,52 +19,52 @@ export default async function HistoryPage() {
       where: { userId: user.id },
     }),
     getGenres().catch(() => ({ genres: [] })),
-  ]);
+  ])
 
   // Stats
-  const totalWatched = items.length;
-  const totalRuntime = items.reduce((sum, i) => sum + (i.runtime ?? 0), 0);
-  const totalHours = Math.round(totalRuntime / 60);
+  const totalWatched = items.length
+  const totalRuntime = items.reduce((sum, i) => sum + (i.runtime ?? 0), 0)
+  const totalHours = Math.round(totalRuntime / 60)
   const avgRating =
     ratings.length > 0
-      ? (ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length).toFixed(
-          1
-        )
-      : null;
+      ? (
+          ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length
+        ).toFixed(1)
+      : null
 
   // Genre breakdown
-  const genreCounts: Record<string, number> = {};
+  const genreCounts: Record<string, number> = {}
   items.forEach((item) => {
     if (item.genreIds) {
       item.genreIds.split(",").forEach((id) => {
-        const genre = genresData.genres.find((g) => String(g.id) === id);
+        const genre = genresData.genres.find((g) => String(g.id) === id)
         if (genre) {
-          genreCounts[genre.name] = (genreCounts[genre.name] ?? 0) + 1;
+          genreCounts[genre.name] = (genreCounts[genre.name] ?? 0) + 1
         }
-      });
+      })
     }
-  });
+  })
   const topGenres = Object.entries(genreCounts)
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 6);
+    .slice(0, 6)
 
   // Decade breakdown
-  const decadeCounts: Record<string, number> = {};
+  const decadeCounts: Record<string, number> = {}
   items.forEach((item) => {
     if (item.year) {
-      const decade = `${item.year.slice(0, 3)}0s`;
-      decadeCounts[decade] = (decadeCounts[decade] ?? 0) + 1;
+      const decade = `${item.year.slice(0, 3)}0s`
+      decadeCounts[decade] = (decadeCounts[decade] ?? 0) + 1
     }
-  });
+  })
   const topDecades = Object.entries(decadeCounts)
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 5);
+    .slice(0, 5)
 
   return (
     <div>
       <div className="mb-8">
         <h1 className="font-heading text-3xl font-bold">Watch History</h1>
-        <p className="text-muted-foreground mt-1 text-sm">
+        <p className="mt-1 text-sm text-muted-foreground">
           Your movie watching journey.
         </p>
       </div>
@@ -73,25 +73,25 @@ export default async function HistoryPage() {
       {totalWatched > 0 && (
         <>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            <div className="bg-card rounded-lg border p-4 text-center">
-              <p className="text-primary text-3xl font-bold">{totalWatched}</p>
-              <p className="text-muted-foreground text-xs">Movies Watched</p>
+            <div className="rounded-lg border bg-card p-4 text-center">
+              <p className="text-3xl font-bold text-primary">{totalWatched}</p>
+              <p className="text-xs text-muted-foreground">Movies Watched</p>
             </div>
-            <div className="bg-card rounded-lg border p-4 text-center">
-              <p className="text-primary text-3xl font-bold">{totalHours}h</p>
-              <p className="text-muted-foreground text-xs">Total Runtime</p>
+            <div className="rounded-lg border bg-card p-4 text-center">
+              <p className="text-3xl font-bold text-primary">{totalHours}h</p>
+              <p className="text-xs text-muted-foreground">Total Runtime</p>
             </div>
-            <div className="bg-card rounded-lg border p-4 text-center">
-              <p className="text-primary text-3xl font-bold">
+            <div className="rounded-lg border bg-card p-4 text-center">
+              <p className="text-3xl font-bold text-primary">
                 {avgRating ?? "—"}
               </p>
-              <p className="text-muted-foreground text-xs">Avg. Rating</p>
+              <p className="text-xs text-muted-foreground">Avg. Rating</p>
             </div>
-            <div className="bg-card rounded-lg border p-4 text-center">
-              <p className="text-primary text-3xl font-bold">
+            <div className="rounded-lg border bg-card p-4 text-center">
+              <p className="text-3xl font-bold text-primary">
                 {ratings.length}
               </p>
-              <p className="text-muted-foreground text-xs">Movies Rated</p>
+              <p className="text-xs text-muted-foreground">Movies Rated</p>
             </div>
           </div>
 
@@ -99,21 +99,21 @@ export default async function HistoryPage() {
           {(topGenres.length > 0 || topDecades.length > 0) && (
             <div className="mt-6 grid gap-6 md:grid-cols-2">
               {topGenres.length > 0 && (
-                <div className="bg-card rounded-lg border p-4">
+                <div className="rounded-lg border bg-card p-4">
                   <h3 className="mb-3 text-sm font-medium">Top Genres</h3>
                   <div className="space-y-2">
                     {topGenres.map(([genre, count]) => (
                       <div key={genre} className="flex items-center gap-2">
                         <span className="w-20 truncate text-sm">{genre}</span>
-                        <div className="bg-muted h-2 flex-1 overflow-hidden rounded-full">
+                        <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
                           <div
-                            className="bg-primary h-full rounded-full"
+                            className="h-full rounded-full bg-primary"
                             style={{
                               width: `${(count / topGenres[0][1]) * 100}%`,
                             }}
                           />
                         </div>
-                        <span className="text-muted-foreground w-8 text-right text-xs">
+                        <span className="w-8 text-right text-xs text-muted-foreground">
                           {count}
                         </span>
                       </div>
@@ -122,7 +122,7 @@ export default async function HistoryPage() {
                 </div>
               )}
               {topDecades.length > 0 && (
-                <div className="bg-card rounded-lg border p-4">
+                <div className="rounded-lg border bg-card p-4">
                   <h3 className="mb-3 text-sm font-medium">Decades</h3>
                   <div className="flex flex-wrap gap-2">
                     {topDecades.map(([decade, count]) => (
@@ -142,7 +142,7 @@ export default async function HistoryPage() {
 
       {/* Movie grid */}
       {items.length === 0 ? (
-        <div className="text-muted-foreground rounded-lg border border-dashed py-16 text-center">
+        <div className="rounded-lg border border-dashed py-16 text-center text-muted-foreground">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="48"
@@ -151,7 +151,7 @@ export default async function HistoryPage() {
             fill="none"
             stroke="currentColor"
             strokeWidth="1"
-            className="text-muted-foreground/50 mx-auto mb-4"
+            className="mx-auto mb-4 text-muted-foreground/50"
           >
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
             <polyline points="22 4 12 14.01 9 11.01" />
@@ -175,5 +175,5 @@ export default async function HistoryPage() {
         </div>
       )}
     </div>
-  );
+  )
 }

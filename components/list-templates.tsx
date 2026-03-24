@@ -1,18 +1,18 @@
-"use client";
+"use client"
 
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useState, useTransition } from "react"
+import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { createListFromTemplate } from "@/lib/actions/list-actions";
-import { toast } from "sonner";
+} from "@/components/ui/dialog"
+import { createListFromTemplate } from "@/lib/actions/list-actions"
+import { toast } from "sonner"
 
 const templates = [
   {
@@ -43,28 +43,31 @@ const templates = [
     icon: "🍿",
     defaultName: "Movie Marathon",
   },
-];
+]
 
 export function ListTemplates() {
-  const router = useRouter();
-  const [selected, setSelected] = useState<(typeof templates)[0] | null>(null);
-  const [listName, setListName] = useState("");
-  const [open, setOpen] = useState(false);
-  const [isPending, startTransition] = useTransition();
+  const router = useRouter()
+  const [selected, setSelected] = useState<(typeof templates)[0] | null>(null)
+  const [listName, setListName] = useState("")
+  const [open, setOpen] = useState(false)
+  const [isPending, startTransition] = useTransition()
 
   const handleCreate = () => {
-    if (!selected || !listName.trim()) return;
+    if (!selected || !listName.trim()) return
     startTransition(async () => {
       try {
-        const result = await createListFromTemplate(selected.id, listName.trim());
-        toast.success("List created from template!");
-        setOpen(false);
-        router.push(`/dashboard/lists/${result.id}`);
+        const result = await createListFromTemplate(
+          selected.id,
+          listName.trim()
+        )
+        toast.success("List created from template!")
+        setOpen(false)
+        router.push(`/dashboard/lists/${result.id}`)
       } catch {
-        toast.error("Failed to create list");
+        toast.error("Failed to create list")
       }
-    });
-  };
+    })
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -102,14 +105,14 @@ export function ListTemplates() {
                   : "hover:bg-accent"
               }`}
               onClick={() => {
-                setSelected(t);
-                setListName(t.defaultName);
+                setSelected(t)
+                setListName(t.defaultName)
               }}
             >
               <span className="text-2xl">{t.icon}</span>
               <div>
                 <p className="text-sm font-medium">{t.name}</p>
-                <p className="text-muted-foreground text-xs">{t.description}</p>
+                <p className="text-xs text-muted-foreground">{t.description}</p>
               </div>
             </button>
           ))}
@@ -136,5 +139,5 @@ export function ListTemplates() {
         )}
       </DialogContent>
     </Dialog>
-  );
+  )
 }

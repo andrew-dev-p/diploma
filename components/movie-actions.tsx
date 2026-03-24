@@ -1,21 +1,21 @@
-"use client";
+"use client"
 
-import { useState, useTransition } from "react";
-import { Button } from "@/components/ui/button";
+import { useState, useTransition } from "react"
+import { Button } from "@/components/ui/button"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@/components/ui/tooltip"
 import {
   toggleWatchlist,
   markAsWatched,
   rateMovie,
   removeRating,
-} from "@/lib/actions/movie-actions";
-import { toast } from "sonner";
-import { cn } from "@/lib/utils";
+} from "@/lib/actions/movie-actions"
+import { toast } from "sonner"
+import { cn } from "@/lib/utils"
 
 // ─── Watchlist Button ────────────────────────────────────────
 
@@ -24,15 +24,15 @@ export function WatchlistButton({
   initialInWatchlist,
 }: {
   movie: {
-    tmdbId: number;
-    title: string;
-    posterPath: string | null;
-    year: string;
-  };
-  initialInWatchlist: boolean;
+    tmdbId: number
+    title: string
+    posterPath: string | null
+    year: string
+  }
+  initialInWatchlist: boolean
 }) {
-  const [inWatchlist, setInWatchlist] = useState(initialInWatchlist);
-  const [isPending, startTransition] = useTransition();
+  const [inWatchlist, setInWatchlist] = useState(initialInWatchlist)
+  const [isPending, startTransition] = useTransition()
 
   return (
     <TooltipProvider>
@@ -46,15 +46,15 @@ export function WatchlistButton({
             onClick={() => {
               startTransition(async () => {
                 try {
-                  const result = await toggleWatchlist(movie);
-                  setInWatchlist(result);
+                  const result = await toggleWatchlist(movie)
+                  setInWatchlist(result)
                   toast.success(
                     result ? "Added to watchlist" : "Removed from watchlist"
-                  );
+                  )
                 } catch {
-                  toast.error("Failed to update watchlist");
+                  toast.error("Failed to update watchlist")
                 }
-              });
+              })
             }}
           >
             <svg
@@ -78,7 +78,7 @@ export function WatchlistButton({
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
-  );
+  )
 }
 
 // ─── Mark Watched Button ─────────────────────────────────────
@@ -88,17 +88,17 @@ export function MarkWatchedButton({
   initialWatched,
 }: {
   movie: {
-    tmdbId: number;
-    title: string;
-    posterPath: string | null;
-    year: string;
-    runtime?: number;
-    genreIds?: number[];
-  };
-  initialWatched: boolean;
+    tmdbId: number
+    title: string
+    posterPath: string | null
+    year: string
+    runtime?: number
+    genreIds?: number[]
+  }
+  initialWatched: boolean
 }) {
-  const [watched, setWatched] = useState(initialWatched);
-  const [isPending, startTransition] = useTransition();
+  const [watched, setWatched] = useState(initialWatched)
+  const [isPending, startTransition] = useTransition()
 
   return (
     <TooltipProvider>
@@ -112,13 +112,13 @@ export function MarkWatchedButton({
             onClick={() => {
               startTransition(async () => {
                 try {
-                  await markAsWatched(movie);
-                  setWatched(true);
-                  toast.success("Marked as watched");
+                  await markAsWatched(movie)
+                  setWatched(true)
+                  toast.success("Marked as watched")
                 } catch {
-                  toast.error("Failed to mark as watched");
+                  toast.error("Failed to mark as watched")
                 }
-              });
+              })
             }}
           >
             <svg
@@ -152,7 +152,7 @@ export function MarkWatchedButton({
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
-  );
+  )
 }
 
 // ─── Star Rating ─────────────────────────────────────────────
@@ -161,18 +161,18 @@ export function StarRating({
   tmdbId,
   initialRating,
 }: {
-  tmdbId: number;
-  initialRating: number | null;
+  tmdbId: number
+  initialRating: number | null
 }) {
-  const [rating, setRating] = useState(initialRating);
-  const [hovered, setHovered] = useState<number | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [rating, setRating] = useState(initialRating)
+  const [hovered, setHovered] = useState<number | null>(null)
+  const [isPending, startTransition] = useTransition()
 
-  const displayRating = hovered ?? rating ?? 0;
+  const displayRating = hovered ?? rating ?? 0
 
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-muted-foreground text-xs font-medium">
+      <span className="text-xs font-medium text-muted-foreground">
         {rating ? `Your rating: ${rating}/10` : "Rate this movie"}
       </span>
       <div className="flex items-center gap-0.5">
@@ -190,18 +190,18 @@ export function StarRating({
               startTransition(async () => {
                 try {
                   if (rating === star) {
-                    await removeRating(tmdbId);
-                    setRating(null);
-                    toast.success("Rating removed");
+                    await removeRating(tmdbId)
+                    setRating(null)
+                    toast.success("Rating removed")
                   } else {
-                    await rateMovie(tmdbId, star);
-                    setRating(star);
-                    toast.success(`Rated ${star}/10`);
+                    await rateMovie(tmdbId, star)
+                    setRating(star)
+                    toast.success(`Rated ${star}/10`)
                   }
                 } catch {
-                  toast.error("Failed to rate");
+                  toast.error("Failed to rate")
                 }
-              });
+              })
             }}
           >
             <svg
@@ -225,5 +225,5 @@ export function StarRating({
         ))}
       </div>
     </div>
-  );
+  )
 }

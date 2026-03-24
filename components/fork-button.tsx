@@ -1,14 +1,14 @@
-"use client";
+"use client"
 
-import { useTransition } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { forkList } from "@/lib/actions/list-actions";
-import { toast } from "sonner";
+import { useTransition } from "react"
+import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { forkList } from "@/lib/actions/list-actions"
+import { toast } from "sonner"
 
 export function ForkButton({ listId }: { listId: string }) {
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
 
   return (
     <Button
@@ -19,13 +19,13 @@ export function ForkButton({ listId }: { listId: string }) {
       onClick={() => {
         startTransition(async () => {
           try {
-            const result = await forkList(listId);
-            toast.success("List forked! Redirecting to your copy...");
-            router.push(`/dashboard/lists/${result.id}`);
+            const result = await forkList(listId)
+            toast.success("List forked! Redirecting to your copy...")
+            router.push(`/dashboard/lists/${result.id}`)
           } catch {
-            toast.error("Failed to fork list");
+            toast.error("Failed to fork list")
           }
-        });
+        })
       }}
     >
       <svg
@@ -47,5 +47,5 @@ export function ForkButton({ listId }: { listId: string }) {
       </svg>
       {isPending ? "Forking..." : "Fork List"}
     </Button>
-  );
+  )
 }

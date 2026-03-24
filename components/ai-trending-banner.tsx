@@ -1,47 +1,47 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { tmdbImageUrl } from "@/lib/tmdb";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useState, useEffect } from "react"
+import Image from "next/image"
+import Link from "next/link"
+import { tmdbImageUrl } from "@/lib/tmdb"
+import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
 
 interface BannerData {
-  headline: string;
+  headline: string
   pick: {
-    id: number;
-    title: string;
-    posterPath: string | null;
-    backdropPath: string | null;
-    year: string;
-    rating: number;
-    reason: string;
-  } | null;
+    id: number
+    title: string
+    posterPath: string | null
+    backdropPath: string | null
+    year: string
+    rating: number
+    reason: string
+  } | null
 }
 
 export function AITrendingBanner() {
-  const [data, setData] = useState<BannerData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [data, setData] = useState<BannerData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
 
   useEffect(() => {
     fetch("/api/ai/trending-banner")
       .then((r) => {
-        if (!r.ok) throw new Error();
-        return r.json();
+        if (!r.ok) throw new Error()
+        return r.json()
       })
       .then((d) => setData(d))
       .catch(() => setError(true))
-      .finally(() => setLoading(false));
-  }, []);
+      .finally(() => setLoading(false))
+  }, [])
 
-  if (error || (!loading && !data)) return null;
+  if (error || (!loading && !data)) return null
 
   if (loading) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <div className="bg-card flex items-center gap-4 overflow-hidden rounded-xl border p-4">
+        <div className="flex items-center gap-4 overflow-hidden rounded-xl border bg-card p-4">
           <Skeleton className="h-5 w-5 shrink-0 rounded-full" />
           <div className="flex-1 space-y-2">
             <Skeleton className="h-4 w-3/4" />
@@ -50,21 +50,21 @@ export function AITrendingBanner() {
           <Skeleton className="h-20 w-14 shrink-0 rounded-lg" />
         </div>
       </div>
-    );
+    )
   }
 
-  if (!data) return null;
+  if (!data) return null
 
   const posterUrl = data.pick?.posterPath
     ? tmdbImageUrl(data.pick.posterPath, "w154")
-    : null;
+    : null
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-      <div className="bg-card group relative overflow-hidden rounded-xl border">
+      <div className="group relative overflow-hidden rounded-xl border bg-card">
         <div className="flex items-center gap-4 p-4">
           {/* AI icon */}
-          <div className="bg-primary/10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -87,14 +87,14 @@ export function AITrendingBanner() {
               <Badge variant="secondary" className="text-[10px]">
                 AI Pick
               </Badge>
-              <span className="text-muted-foreground text-[10px]">
+              <span className="text-[10px] text-muted-foreground">
                 Trending this week
               </span>
             </div>
             <p className="mt-1 text-sm font-medium">{data.headline}</p>
             {data.pick && (
-              <p className="text-muted-foreground mt-0.5 text-xs">
-                <span className="text-foreground font-medium">
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                <span className="font-medium text-foreground">
                   {data.pick.title}
                 </span>{" "}
                 — {data.pick.reason}
@@ -108,7 +108,7 @@ export function AITrendingBanner() {
               href={`/movies/${data.pick.id}`}
               className="shrink-0 transition-transform hover:scale-105"
             >
-              <div className="bg-muted relative h-20 w-14 overflow-hidden rounded-lg shadow-sm">
+              <div className="relative h-20 w-14 overflow-hidden rounded-lg bg-muted shadow-sm">
                 <Image
                   src={posterUrl}
                   alt={data.pick.title}
@@ -122,5 +122,5 @@ export function AITrendingBanner() {
         </div>
       </div>
     </div>
-  );
+  )
 }

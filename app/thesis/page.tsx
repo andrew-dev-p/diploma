@@ -1,10 +1,10 @@
-import Script from "next/script";
-import Image from "next/image";
-import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
+import Script from "next/script"
+import Image from "next/image"
+import Link from "next/link"
+import { Badge } from "@/components/ui/badge"
+import { Card } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import { Button } from "@/components/ui/button"
 
 const sections = [
   { id: "about", label: "Про роботу" },
@@ -14,7 +14,7 @@ const sections = [
   { id: "results", label: "Результати" },
   { id: "tech", label: "Технології" },
   { id: "contact", label: "Контакти" },
-] as const;
+] as const
 
 const schemaOrg = {
   "@context": "https://schema.org",
@@ -38,7 +38,7 @@ const schemaOrg = {
     operatingSystem: "Web",
     url: "https://cinelist.vercel.app",
   },
-};
+}
 
 const keywords = [
   "Next.js",
@@ -51,7 +51,7 @@ const keywords = [
   "Clerk Auth",
   "shadcn/ui",
   "Tailwind CSS",
-];
+]
 
 const tasks = [
   "Провести аналіз існуючих платформ для створення списків фільмів та виявити їх обмеження",
@@ -59,7 +59,7 @@ const tasks = [
   "Реалізувати інтеграцію з TMDB API для отримання повної інформації про фільми, акторів та режисерів",
   "Розробити систему AI-генерації персоналізованого контенту на основі Google Gemini для опису списків та рекомендацій",
   "Забезпечити функціонал обміну списками, коментування, оцінювання та форкінгу списків між користувачами",
-];
+]
 
 const techStack = [
   {
@@ -83,16 +83,13 @@ const techStack = [
   },
   {
     category: "Зовнішні API",
-    items: [
-      "TMDB API (фільми, актори, жанри)",
-      "Google Gemini (AI-генерація)",
-    ],
+    items: ["TMDB API (фільми, актори, жанри)", "Google Gemini (AI-генерація)"],
   },
   {
     category: "Аутентифікація",
     items: ["Clerk (Google OAuth)"],
   },
-];
+]
 
 const methodologyItems = [
   {
@@ -120,7 +117,7 @@ const methodologyItems = [
     description:
       "Перевірка працездатності через ручне тестування інтерфейсу та перевірку типів TypeScript",
   },
-];
+]
 
 const results = [
   "Повнофункціональний веб-застосунок CineList з можливістю створення, редагування та обміну списками фільмів",
@@ -129,7 +126,7 @@ const results = [
   "Система персональних рейтингів, списку перегляду (watchlist) та історії переглядів зі статистикою",
   "Соціальні функції: публічний доступ до списків, коментарі, лайки, форкінг та шаблони списків",
   "Детальні сторінки фільмів, акторів та режисерів з повною фільмографією",
-];
+]
 
 export default function ThesisPage() {
   return (
@@ -144,7 +141,7 @@ export default function ThesisPage() {
         {/* Skip to content */}
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground"
         >
           Перейти до основного вмісту
         </a>
@@ -162,10 +159,7 @@ export default function ThesisPage() {
               >
                 CineList
               </Link>
-              <ul
-                role="list"
-                className="hidden gap-1 md:flex"
-              >
+              <ul role="list" className="hidden gap-1 md:flex">
                 {sections.map((s) => (
                   <li key={s.id}>
                     <a
@@ -194,10 +188,7 @@ export default function ThesisPage() {
 
           <div className="relative mx-auto max-w-5xl px-4 py-16 sm:px-6 sm:py-24">
             {/* University logo */}
-            <div
-              aria-label="Логотип університету"
-              className="mb-8"
-            >
+            <div aria-label="Логотип університету" className="mb-8">
               <Image
                 src="/university-logo.svg"
                 alt="Логотип Національного технічного університету України «Київський політехнічний інститут імені Ігоря Сікорського»"
@@ -214,7 +205,7 @@ export default function ThesisPage() {
 
             <h1
               lang="uk"
-              className="font-heading text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl"
+              className="font-heading text-3xl leading-tight font-bold tracking-tight sm:text-4xl lg:text-5xl"
             >
               Веб-застосунок для створення та обміну списками фільмів з
               використанням TMDB&nbsp;API та AI&#8209;генерації
@@ -234,18 +225,29 @@ export default function ThesisPage() {
               <span>
                 <strong className="text-foreground">Автор:</strong> Попов Андрій
               </span>
-              <Separator orientation="vertical" className="hidden h-4 sm:block" />
+              <Separator
+                orientation="vertical"
+                className="hidden h-4 sm:block"
+              />
               <span>2026</span>
             </div>
 
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild>
-                <a href="https://cinelist.vercel.app" target="_blank" rel="noopener noreferrer">
+                <a
+                  href="https://cinelist.vercel.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   Відкрити застосунок
                 </a>
               </Button>
               <Button variant="outline" asChild>
-                <a href="https://github.com/andrew-dev-p/diploma" target="_blank" rel="noopener noreferrer">
+                <a
+                  href="https://github.com/andrew-dev-p/diploma"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   GitHub
                 </a>
               </Button>
@@ -253,7 +255,11 @@ export default function ThesisPage() {
           </div>
         </header>
 
-        <main id="main-content" role="main" className="mx-auto max-w-5xl px-4 sm:px-6">
+        <main
+          id="main-content"
+          role="main"
+          className="mx-auto max-w-5xl px-4 sm:px-6"
+        >
           {/* About */}
           <section
             id="about"
@@ -269,15 +275,16 @@ export default function ThesisPage() {
             <Separator className="my-4" />
 
             <p className="max-w-3xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-              CineList — це веб-застосунок, який дозволяє користувачам створювати
-              персоналізовані списки фільмів, ділитися ними з іншими та отримувати
-              AI-генеровані рекомендації. Застосунок інтегрується з TMDB API для
-              доступу до повної бази даних фільмів, акторів та режисерів, а також
-              використовує Google Gemini для генерації описів та пропозицій.
+              CineList — це веб-застосунок, який дозволяє користувачам
+              створювати персоналізовані списки фільмів, ділитися ними з іншими
+              та отримувати AI-генеровані рекомендації. Застосунок інтегрується
+              з TMDB API для доступу до повної бази даних фільмів, акторів та
+              режисерів, а також використовує Google Gemini для генерації описів
+              та пропозицій.
             </p>
 
             <div aria-label="Ключові слова дослідження" className="mt-8">
-              <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+              <h3 className="mb-3 text-sm font-semibold tracking-wider text-muted-foreground uppercase">
                 Ключові слова
               </h3>
               <div className="flex flex-wrap gap-2">
@@ -306,18 +313,19 @@ export default function ThesisPage() {
 
             <div className="max-w-3xl space-y-4 text-base leading-relaxed text-muted-foreground sm:text-lg">
               <p>
-                У сучасному цифровому світі обсяг доступного кіноконтенту зростає
-                експоненціально. Стрімінгові платформи пропонують десятки тисяч
-                фільмів, що створює проблему вибору для глядачів. Існуючі рішення,
-                такі як IMDb та Letterboxd, мають обмежені можливості для
-                персоналізації та обміну кураторськими списками.
+                У сучасному цифровому світі обсяг доступного кіноконтенту
+                зростає експоненціально. Стрімінгові платформи пропонують
+                десятки тисяч фільмів, що створює проблему вибору для глядачів.
+                Існуючі рішення, такі як IMDb та Letterboxd, мають обмежені
+                можливості для персоналізації та обміну кураторськими списками.
               </p>
               <p>
                 Використання технологій штучного інтелекту для генерації
-                персоналізованого контенту відкриває нові можливості для покращення
-                користувацького досвіду. AI може аналізувати вподобання користувача,
-                генерувати тематичні описи для списків фільмів та рекомендувати
-                нові фільми на основі контексту вже обраних.
+                персоналізованого контенту відкриває нові можливості для
+                покращення користувацького досвіду. AI може аналізувати
+                вподобання користувача, генерувати тематичні описи для списків
+                фільмів та рекомендувати нові фільми на основі контексту вже
+                обраних.
               </p>
               <p>
                 Актуальність роботи підтверджується зростанням попиту на
@@ -362,7 +370,7 @@ export default function ThesisPage() {
                     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
                       {i + 1}
                     </span>
-                    <span className="text-base leading-relaxed text-muted-foreground pt-0.5">
+                    <span className="pt-0.5 text-base leading-relaxed text-muted-foreground">
                       {task}
                     </span>
                   </li>
@@ -445,15 +453,12 @@ export default function ThesisPage() {
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {techStack.map((group) => (
                 <Card key={group.category} className="p-5">
-                  <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+                  <h3 className="mb-3 text-sm font-semibold tracking-wider text-primary uppercase">
                     {group.category}
                   </h3>
                   <ul className="space-y-1.5">
                     {group.items.map((item) => (
-                      <li
-                        key={item}
-                        className="text-sm text-muted-foreground"
-                      >
+                      <li key={item} className="text-sm text-muted-foreground">
                         {item}
                       </li>
                     ))}
@@ -483,13 +488,13 @@ export default function ThesisPage() {
             <address className="not-italic">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                  <p className="text-sm font-semibold tracking-wider text-muted-foreground uppercase">
                     Автор
                   </p>
                   <p className="mt-1 text-lg">Попов Андрій</p>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                  <p className="text-sm font-semibold tracking-wider text-muted-foreground uppercase">
                     Email
                   </p>
                   <a
@@ -500,7 +505,7 @@ export default function ThesisPage() {
                   </a>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                  <p className="text-sm font-semibold tracking-wider text-muted-foreground uppercase">
                     GitHub
                   </p>
                   <a
@@ -513,7 +518,7 @@ export default function ThesisPage() {
                   </a>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                  <p className="text-sm font-semibold tracking-wider text-muted-foreground uppercase">
                     Застосунок
                   </p>
                   <a
@@ -538,5 +543,5 @@ export default function ThesisPage() {
         </footer>
       </div>
     </>
-  );
+  )
 }

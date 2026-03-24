@@ -1,24 +1,24 @@
-import Image from "next/image";
-import Link from "next/link";
-import { tmdbImageUrl } from "@/lib/tmdb";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import Image from "next/image"
+import Link from "next/link"
+import { tmdbImageUrl } from "@/lib/tmdb"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 
 interface ListCardProps {
-  id: string;
-  name: string;
-  description?: string | null;
-  slug: string;
-  itemCount: number;
-  likeCount: number;
-  posters: (string | null)[];
+  id: string
+  name: string
+  description?: string | null
+  slug: string
+  itemCount: number
+  likeCount: number
+  posters: (string | null)[]
   author?: {
-    username: string | null;
-    imageUrl: string | null;
-  };
-  href?: string;
-  tags?: string[];
+    username: string | null
+    imageUrl: string | null
+  }
+  href?: string
+  tags?: string[]
 }
 
 export function ListCard({
@@ -32,17 +32,17 @@ export function ListCard({
   href,
   tags,
 }: ListCardProps) {
-  const linkHref = href ?? `/lists/${slug}`;
+  const linkHref = href ?? `/lists/${slug}`
 
   return (
     <Link href={linkHref} className="group block">
       <Card className="overflow-hidden transition-shadow group-hover:shadow-md">
         {/* Poster mosaic */}
-        <div className="bg-muted relative grid h-40 grid-cols-4 gap-0.5 overflow-hidden">
+        <div className="relative grid h-40 grid-cols-4 gap-0.5 overflow-hidden bg-muted">
           {[0, 1, 2, 3].map((i) => {
             const posterUrl = posters[i]
               ? tmdbImageUrl(posters[i], "w185")
-              : null;
+              : null
             return (
               <div key={i} className="relative overflow-hidden">
                 {posterUrl ? (
@@ -54,7 +54,7 @@ export function ListCard({
                     sizes="25vw"
                   />
                 ) : (
-                  <div className="bg-muted flex h-full items-center justify-center">
+                  <div className="flex h-full items-center justify-center bg-muted">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="16"
@@ -71,23 +71,27 @@ export function ListCard({
                   </div>
                 )}
               </div>
-            );
+            )
           })}
         </div>
 
         <CardContent className="p-4">
-          <h3 className="font-heading text-lg font-semibold leading-tight line-clamp-1">
+          <h3 className="line-clamp-1 font-heading text-lg leading-tight font-semibold">
             {name}
           </h3>
           {description && (
-            <p className="text-muted-foreground mt-1 text-sm line-clamp-2">
+            <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
               {description}
             </p>
           )}
           {tags && tags.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1">
               {tags.slice(0, 3).map((tag) => (
-                <Badge key={tag} variant="outline" className="text-[10px] px-1.5 py-0">
+                <Badge
+                  key={tag}
+                  variant="outline"
+                  className="px-1.5 py-0 text-[10px]"
+                >
                   {tag}
                 </Badge>
               ))}
@@ -95,7 +99,7 @@ export function ListCard({
           )}
         </CardContent>
 
-        <CardFooter className="flex items-center justify-between px-4 pb-4 pt-0">
+        <CardFooter className="flex items-center justify-between px-4 pt-0 pb-4">
           {/* Author */}
           {author && (
             <div className="flex items-center gap-2">
@@ -105,14 +109,14 @@ export function ListCard({
                   {(author.username ?? "U")[0].toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <span className="text-muted-foreground text-xs">
+              <span className="text-xs text-muted-foreground">
                 {author.username ?? "User"}
               </span>
             </div>
           )}
 
           {/* Stats */}
-          <div className="text-muted-foreground flex items-center gap-3 text-xs">
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <span>{itemCount} films</span>
             {likeCount > 0 && (
               <span className="flex items-center gap-1">
@@ -136,5 +140,5 @@ export function ListCard({
         </CardFooter>
       </Card>
     </Link>
-  );
+  )
 }

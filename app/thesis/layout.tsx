@@ -1,10 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata } from "next"
 
 const title =
-  "Веб-застосунок для створення та обміну списками фільмів | Бакалаврська робота";
+  "Веб-застосунок для створення та обміну списками фільмів | Бакалаврська робота"
 const description =
-  "Бакалаврська робота: розробка веб-застосунку CineList для створення та обміну списками фільмів з використанням TMDB API та AI-генерації персоналізованого контенту.";
-const url = "https://cinelist.vercel.app/thesis";
+  "Бакалаврська робота: розробка веб-застосунку CineList для створення та обміну списками фільмів з використанням TMDB API та AI-генерації персоналізованого контенту."
+const url = "https://cinelist.vercel.app/thesis"
 
 export const metadata: Metadata = {
   title,
@@ -43,12 +43,12 @@ export const metadata: Metadata = {
       en: `${url}?lang=en`,
     },
   },
-};
+}
 
 export default function ThesisLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
-  return <>{children}</>;
+  return <>{children}</>
 }

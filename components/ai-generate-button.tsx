@@ -1,13 +1,13 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
 
 interface AIGenerateButtonProps {
-  listId: string;
-  onGenerated: (description: string) => void;
-  disabled?: boolean;
+  listId: string
+  onGenerated: (description: string) => void
+  disabled?: boolean
 }
 
 export function AIGenerateButton({
@@ -15,33 +15,33 @@ export function AIGenerateButton({
   onGenerated,
   disabled,
 }: AIGenerateButtonProps) {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false)
 
   async function handleGenerate() {
-    setLoading(true);
+    setLoading(true)
     try {
       const res = await fetch("/api/ai/generate-description", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ listId }),
-      });
+      })
 
-      const data = await res.json();
+      const data = await res.json()
 
       if (!res.ok) {
-        throw new Error(data.error || "Failed to generate description");
+        throw new Error(data.error || "Failed to generate description")
       }
 
       if (data.description) {
-        onGenerated(data.description);
-        toast.success("AI description generated!");
+        onGenerated(data.description)
+        toast.success("AI description generated!")
       }
     } catch (err) {
       toast.error(
         err instanceof Error ? err.message : "Failed to generate description"
-      );
+      )
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
@@ -91,5 +91,5 @@ export function AIGenerateButton({
       )}
       {loading ? "Generating..." : "AI Description"}
     </Button>
-  );
+  )
 }

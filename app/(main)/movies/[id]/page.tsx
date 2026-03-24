@@ -1,115 +1,115 @@
-import { notFound } from "next/navigation";
-import Image from "next/image";
-import Link from "next/link";
-import type { Metadata } from "next";
-import { auth } from "@clerk/nextjs/server";
+import { notFound } from "next/navigation"
+import Image from "next/image"
+import Link from "next/link"
+import type { Metadata } from "next"
+import { auth } from "@clerk/nextjs/server"
 import {
   getMovie,
   getMovieCredits,
   getMovieVideos,
   getSimilarMovies,
   tmdbImageUrl,
-} from "@/lib/tmdb";
+} from "@/lib/tmdb"
 import {
   getUserRating,
   isInWatchlist,
   isWatched,
-} from "@/lib/actions/movie-actions";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { MovieCard } from "@/components/movie-card";
+} from "@/lib/actions/movie-actions"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
+import { MovieCard } from "@/components/movie-card"
 import {
   WatchlistButton,
   MarkWatchedButton,
   StarRating,
-} from "@/components/movie-actions";
+} from "@/components/movie-actions"
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string }>
 }): Promise<Metadata> {
-  const { id } = await params;
+  const { id } = await params
   try {
-    const movie = await getMovie(parseInt(id));
+    const movie = await getMovie(parseInt(id))
     return {
       title: `${movie.title} — CineList`,
       description: movie.overview?.slice(0, 160),
-    };
+    }
   } catch {
-    return { title: "Movie Not Found" };
+    return { title: "Movie Not Found" }
   }
 }
 
 function formatCurrency(num: number) {
-  if (num >= 1_000_000_000) return `$${(num / 1_000_000_000).toFixed(1)}B`;
-  if (num >= 1_000_000) return `$${(num / 1_000_000).toFixed(1)}M`;
-  if (num >= 1_000) return `$${(num / 1_000).toFixed(0)}K`;
-  return `$${num}`;
+  if (num >= 1_000_000_000) return `$${(num / 1_000_000_000).toFixed(1)}B`
+  if (num >= 1_000_000) return `$${(num / 1_000_000).toFixed(1)}M`
+  if (num >= 1_000) return `$${(num / 1_000).toFixed(0)}K`
+  return `$${num}`
 }
 
 export default async function MovieDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string }>
 }) {
-  const { id } = await params;
-  const tmdbId = parseInt(id);
+  const { id } = await params
+  const tmdbId = parseInt(id)
 
-  let movie;
-  let credits;
-  let videos;
-  let similar;
+  let movie
+  let credits
+  let videos
+  let similar
   try {
-    [movie, credits, videos, similar] = await Promise.all([
+    ;[movie, credits, videos, similar] = await Promise.all([
       getMovie(tmdbId),
       getMovieCredits(tmdbId),
       getMovieVideos(tmdbId),
       getSimilarMovies(tmdbId),
-    ]);
+    ])
   } catch {
-    notFound();
+    notFound()
   }
 
   // Auth-dependent data
-  const { userId: clerkId } = await auth();
-  let userRating: number | null = null;
-  let inWatchlist = false;
-  let watched = false;
+  const { userId: clerkId } = await auth()
+  let userRating: number | null = null
+  let inWatchlist = false
+  let watched = false
 
   if (clerkId) {
-    [userRating, inWatchlist, watched] = await Promise.all([
+    ;[userRating, inWatchlist, watched] = await Promise.all([
       getUserRating(tmdbId),
       isInWatchlist(tmdbId),
       isWatched(tmdbId),
-    ]);
+    ])
   }
 
-  const backdropUrl = tmdbImageUrl(movie.backdrop_path, "w1280");
-  const posterUrl = tmdbImageUrl(movie.poster_path, "w500");
-  const year = movie.release_date?.split("-")[0];
-  const director = credits.crew.find((c) => c.job === "Director");
+  const backdropUrl = tmdbImageUrl(movie.backdrop_path, "w1280")
+  const posterUrl = tmdbImageUrl(movie.poster_path, "w500")
+  const year = movie.release_date?.split("-")[0]
+  const director = credits.crew.find((c) => c.job === "Director")
   const writers = credits.crew
     .filter((c) => c.job === "Screenplay" || c.job === "Writer")
-    .slice(0, 3);
+    .slice(0, 3)
   const cinematographer = credits.crew.find(
     (c) => c.job === "Director of Photography"
-  );
-  const composer = credits.crew.find(
-    (c) => c.job === "Original Music Composer"
-  );
-  const cast = credits.cast.slice(0, 12);
+  )
+  const composer = credits.crew.find((c) => c.job === "Original Music Composer")
+  const cast = credits.cast.slice(0, 12)
 
   // Find YouTube trailer
-  const trailer = videos.results.find(
-    (v) =>
-      v.site === "YouTube" &&
-      (v.type === "Trailer" || v.type === "Teaser") &&
-      v.official
-  ) ?? videos.results.find((v) => v.site === "YouTube" && v.type === "Trailer");
+  const trailer =
+    videos.results.find(
+      (v) =>
+        v.site === "YouTube" &&
+        (v.type === "Trailer" || v.type === "Teaser") &&
+        v.official
+    ) ??
+    videos.results.find((v) => v.site === "YouTube" && v.type === "Trailer")
 
-  const similarMovies = similar.results.slice(0, 10);
+  const similarMovies = similar.results.slice(0, 10)
 
   const movieData = {
     tmdbId,
@@ -118,7 +118,7 @@ export default async function MovieDetailPage({
     year: year ?? "",
     runtime: movie.runtime ?? undefined,
     genreIds: movie.genres?.map((g) => g.id),
-  };
+  }
 
   return (
     <div>
@@ -133,7 +133,7 @@ export default async function MovieDetailPage({
             sizes="100vw"
             priority
           />
-          <div className="from-background absolute inset-0 bg-gradient-to-t to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
         </div>
       )}
 
@@ -143,7 +143,7 @@ export default async function MovieDetailPage({
         >
           {/* Poster */}
           {posterUrl && (
-            <div className="bg-muted relative aspect-[2/3] w-48 shrink-0 overflow-hidden rounded-xl shadow-lg md:w-56">
+            <div className="relative aspect-[2/3] w-48 shrink-0 overflow-hidden rounded-xl bg-muted shadow-lg md:w-56">
               <Image
                 src={posterUrl}
                 alt={movie.title}
@@ -161,7 +161,7 @@ export default async function MovieDetailPage({
               {movie.title}
             </h1>
             {movie.tagline && (
-              <p className="text-muted-foreground mt-1 italic">
+              <p className="mt-1 text-muted-foreground italic">
                 {movie.tagline}
               </p>
             )}
@@ -189,13 +189,13 @@ export default async function MovieDetailPage({
             </div>
 
             {/* Crew info */}
-            <div className="text-muted-foreground mt-4 space-y-1 text-sm">
+            <div className="mt-4 space-y-1 text-sm text-muted-foreground">
               {director && (
                 <p>
                   Directed by{" "}
                   <Link
                     href={`/person/${director.id}`}
-                    className="text-foreground font-medium hover:underline"
+                    className="font-medium text-foreground hover:underline"
                   >
                     {director.name}
                   </Link>
@@ -208,7 +208,7 @@ export default async function MovieDetailPage({
                     <span key={w.id}>
                       <Link
                         href={`/person/${w.id}`}
-                        className="text-foreground font-medium hover:underline"
+                        className="font-medium text-foreground hover:underline"
                       >
                         {w.name}
                       </Link>
@@ -222,7 +222,7 @@ export default async function MovieDetailPage({
                   Cinematography by{" "}
                   <Link
                     href={`/person/${cinematographer.id}`}
-                    className="text-foreground font-medium hover:underline"
+                    className="font-medium text-foreground hover:underline"
                   >
                     {cinematographer.name}
                   </Link>
@@ -233,7 +233,7 @@ export default async function MovieDetailPage({
                   Music by{" "}
                   <Link
                     href={`/person/${composer.id}`}
-                    className="text-foreground font-medium hover:underline"
+                    className="font-medium text-foreground hover:underline"
                   >
                     {composer.name}
                   </Link>
@@ -274,10 +274,7 @@ export default async function MovieDetailPage({
                   movie={movieData}
                   initialInWatchlist={inWatchlist}
                 />
-                <MarkWatchedButton
-                  movie={movieData}
-                  initialWatched={watched}
-                />
+                <MarkWatchedButton movie={movieData} initialWatched={watched} />
               </div>
             )}
           </div>
@@ -296,7 +293,7 @@ export default async function MovieDetailPage({
           <>
             <Separator className="my-8" />
             <div>
-              <h2 className="font-heading mb-4 text-xl font-bold">Trailer</h2>
+              <h2 className="mb-4 font-heading text-xl font-bold">Trailer</h2>
               <div className="aspect-video overflow-hidden rounded-xl">
                 <iframe
                   src={`https://www.youtube.com/embed/${trailer.key}`}
@@ -315,17 +312,17 @@ export default async function MovieDetailPage({
           <>
             <Separator className="my-8" />
             <div>
-              <h2 className="font-heading mb-4 text-xl font-bold">Cast</h2>
+              <h2 className="mb-4 font-heading text-xl font-bold">Cast</h2>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
                 {cast.map((person) => {
-                  const profileUrl = tmdbImageUrl(person.profile_path, "w185");
+                  const profileUrl = tmdbImageUrl(person.profile_path, "w185")
                   return (
                     <Link
                       key={person.id}
                       href={`/person/${person.id}`}
                       className="group text-center"
                     >
-                      <div className="bg-muted relative mx-auto aspect-square w-20 overflow-hidden rounded-full transition-transform group-hover:scale-105">
+                      <div className="relative mx-auto aspect-square w-20 overflow-hidden rounded-full bg-muted transition-transform group-hover:scale-105">
                         {profileUrl ? (
                           <Image
                             src={profileUrl}
@@ -352,14 +349,14 @@ export default async function MovieDetailPage({
                           </div>
                         )}
                       </div>
-                      <p className="mt-2 text-xs font-medium line-clamp-1 group-hover:underline">
+                      <p className="mt-2 line-clamp-1 text-xs font-medium group-hover:underline">
                         {person.name}
                       </p>
-                      <p className="text-muted-foreground text-[11px] line-clamp-1">
+                      <p className="line-clamp-1 text-[11px] text-muted-foreground">
                         {person.character}
                       </p>
                     </Link>
-                  );
+                  )
                 })}
               </div>
             </div>
@@ -371,7 +368,7 @@ export default async function MovieDetailPage({
           <>
             <Separator className="my-8" />
             <div className="pb-16">
-              <h2 className="font-heading mb-4 text-xl font-bold">
+              <h2 className="mb-4 font-heading text-xl font-bold">
                 Similar Movies
               </h2>
               <ScrollArea className="w-full whitespace-nowrap">
@@ -395,5 +392,5 @@ export default async function MovieDetailPage({
         )}
       </div>
     </div>
-  );
+  )
 }

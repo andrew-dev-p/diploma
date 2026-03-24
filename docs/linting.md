@@ -119,43 +119,151 @@ npm run quality
 ```
 ✖ 10 problems (0 errors, 10 warnings)
 Fixed: #1, #2, #3
+Calculation: 3/13 = 23%
+```
+
+### After 50% fix pass (auto-fix + manual)
+
+```
+✖ 0 problems
+Fixed: all remaining — #4 through #13
+Calculation: 13/13 = 100% ≥ 50% ✓
+```
+
+**How 50% was determined:**
+- Auto-fix (`eslint --fix`) resolved 7 issues (#6–#12: consistent-type-imports) = 54%
+- Manual fix resolved remaining 3 (#4 unused Badge, #5 unused useState, #13 impure Date.now)
+- Total: 13/13 = 100% ≥ 50% ✓
+
+### After 90% fix pass
+
+Same as above — all 13/13 issues resolved = 100% ≥ 90% ✓
+
+**How 90% was determined:**
+- Baseline: 13 issues (counted by running `npx eslint .`)
+- After fixes: 0 issues (confirmed by running `npx eslint .`)
+- 13/13 fixed = 100% ≥ 90% ✓
+
+### Final state
+
+```bash
+$ npx eslint .
+# (no output — 0 issues)
+
+$ npx tsc --noEmit
+# (no output — 0 type errors)
+
+$ npx prettier --check "**/*.{ts,tsx}"
+# Checking formatting...
+# All matched files use Prettier code style!
 ```
 
 ## Git Hooks
 
-Pre-commit hooks run ESLint and TypeScript check automatically before each commit.
+Pre-commit hooks automatically run the full quality check before each commit, preventing code with lint errors, type errors, or formatting issues from being committed.
 
-Setup via Husky:
+### Setup
 
-```bash
-# Install (already configured in package.json)
-npm install
+Husky is configured via the `prepare` script in `package.json`. Hooks are installed automatically when running `npm install`:
 
-# Hooks are in .husky/ directory
-# pre-commit: runs npm run quality
+```json
+{
+  "scripts": {
+    "prepare": "husky"
+  }
+}
 ```
 
-## Build Integration
+### Pre-commit hook
 
-The `npm run quality` command runs all checks in sequence:
+File: `.husky/pre-commit`
 
 ```bash
 npm run quality
-# Equivalent to: eslint . && tsc --noEmit && prettier --check "**/*.{ts,tsx}"
 ```
 
-The production build (`npm run build`) also runs type checking as part of the Next.js build process.
+This runs ESLint + TypeScript check + Prettier check. If any check fails, the commit is rejected.
+
+### How it works
+
+1. Developer runs `git commit`
+2. Husky intercepts and runs `.husky/pre-commit`
+3. `npm run quality` runs:
+   - `eslint .` — linting (0 errors required)
+   - `tsc --noEmit` — type checking (0 errors required)
+   - `prettier --check` — formatting (all files must match)
+4. If all pass → commit proceeds
+5. If any fails → commit is rejected with error output
+
+## Build Integration
+
+### Quality check script
+
+The `npm run quality` command runs all static analysis in sequence:
+
+```bash
+npm run quality
+# Runs: eslint . && tsc --noEmit && prettier --check "**/*.{ts,tsx}"
+```
+
+### Pre-build hook
+
+The `prebuild` script in `package.json` runs linting and type checking before every production build:
+
+```json
+{
+  "scripts": {
+    "prebuild": "eslint . && tsc --noEmit",
+    "build": "next build"
+  }
+}
+```
+
+When you run `npm run build`, npm automatically runs `prebuild` first. If linting or type checking fails, the build is aborted.
+
+### Available scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run lint` | Run ESLint |
+| `npm run lint:fix` | Run ESLint with auto-fix |
+| `npm run typecheck` | Run TypeScript type check |
+| `npm run format` | Format all files with Prettier |
+| `npm run format:check` | Check formatting without modifying |
+| `npm run quality` | Full check: lint + typecheck + format |
+| `npm run build` | Build (runs prebuild checks first) |
 
 ## Static Type Checking
 
-TypeScript is configured in `tsconfig.json` with strict mode. Run standalone type check:
+TypeScript is the primary language of the project. Type checking is enforced at multiple levels:
+
+### Configuration
+
+TypeScript is configured in `tsconfig.json`. The Next.js default config provides strict type checking.
+
+### Running type check
 
 ```bash
 npm run typecheck    # tsc --noEmit
 ```
 
-TypeScript catches issues that ESLint cannot, such as:
+### What TypeScript catches
+
+TypeScript catches issues that ESLint cannot:
+
 - Type mismatches between function arguments and parameters
-- Missing required properties on objects
-- Incorrect return types
+- Missing required properties on objects/interfaces
+- Incorrect return types from functions
 - Null/undefined safety violations
+- Invalid property access on typed objects
+- Incompatible types in assignments
+- Missing generic type parameters
+
+### Integration points
+
+| Where | How |
+|-------|-----|
+| Pre-commit hook | `npm run quality` includes `tsc --noEmit` |
+| Pre-build | `npm run prebuild` includes `tsc --noEmit` |
+| IDE | Real-time type errors in VS Code / WebStorm |
+| CI (if configured) | Can run `npm run quality` in GitHub Actions |

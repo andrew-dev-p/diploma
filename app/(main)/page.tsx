@@ -1,31 +1,31 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { MovieCard } from "@/components/movie-card";
-import { ListCard } from "@/components/list-card";
-import { getTrending } from "@/lib/tmdb";
-import { db } from "@/lib/db";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { AITrendingBanner } from "@/components/ai-trending-banner";
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { MovieCard } from "@/components/movie-card"
+import { ListCard } from "@/components/list-card"
+import { getTrending } from "@/lib/tmdb"
+import { db } from "@/lib/db"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
+import { AITrendingBanner } from "@/components/ai-trending-banner"
 
 export default async function HomePage() {
-  let trendingMovies: Awaited<ReturnType<typeof getTrending>>["results"] = [];
+  let trendingMovies: Awaited<ReturnType<typeof getTrending>>["results"] = []
   try {
-    const trending = await getTrending("week");
-    trendingMovies = trending.results.slice(0, 20);
+    const trending = await getTrending("week")
+    trendingMovies = trending.results.slice(0, 20)
   } catch {
     // TMDB may fail if no API key set
   }
 
   let featuredLists: {
-    id: string;
-    name: string;
-    description: string | null;
-    slug: string;
-    user: { username: string | null; imageUrl: string | null };
-    items: { posterPath: string | null }[];
-    tags: { name: string }[];
-    _count: { likes: number; items: number };
-  }[] = [];
+    id: string
+    name: string
+    description: string | null
+    slug: string
+    user: { username: string | null; imageUrl: string | null }
+    items: { posterPath: string | null }[]
+    tags: { name: string }[]
+    _count: { likes: number; items: number }
+  }[] = []
   try {
     featuredLists = await db.movieList.findMany({
       where: { isPublic: true },
@@ -41,7 +41,7 @@ export default async function HomePage() {
       },
       orderBy: { updatedAt: "desc" },
       take: 6,
-    });
+    })
   } catch {
     // DB may not be connected yet
   }
@@ -57,7 +57,7 @@ export default async function HomePage() {
               <br />
               <span className="text-primary">Movie Collection</span>
             </h1>
-            <p className="text-muted-foreground mt-6 text-lg leading-8">
+            <p className="mt-6 text-lg leading-8 text-muted-foreground">
               Create personalized movie lists, discover films, rate and track
               your watching journey with AI-powered insights.
             </p>
@@ -114,9 +114,7 @@ export default async function HomePage() {
       {featuredLists.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           <div className="mb-6 flex items-center justify-between">
-            <h2 className="font-heading text-2xl font-bold">
-              Featured Lists
-            </h2>
+            <h2 className="font-heading text-2xl font-bold">Featured Lists</h2>
             <Link href="/explore">
               <Button variant="ghost" size="sm">
                 View all
@@ -145,7 +143,7 @@ export default async function HomePage() {
       {/* How it works */}
       <section className="border-t">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <h2 className="font-heading mb-12 text-center text-2xl font-bold">
+          <h2 className="mb-12 text-center font-heading text-2xl font-bold">
             How It Works
           </h2>
           <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
@@ -172,18 +170,18 @@ export default async function HomePage() {
               },
             ].map((item) => (
               <div key={item.step} className="text-center">
-                <div className="bg-primary text-primary-foreground mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full text-lg font-bold">
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">
                   {item.step}
                 </div>
-                <h3 className="font-heading mb-2 text-lg font-semibold">
+                <h3 className="mb-2 font-heading text-lg font-semibold">
                   {item.title}
                 </h3>
-                <p className="text-muted-foreground text-sm">{item.desc}</p>
+                <p className="text-sm text-muted-foreground">{item.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
     </div>
-  );
+  )
 }

@@ -1,8 +1,8 @@
-import { discoverMovies } from "@/lib/tmdb";
-import { type NextRequest, NextResponse } from "next/server";
+import { discoverMovies } from "@/lib/tmdb"
+import { type NextRequest, NextResponse } from "next/server"
 
 export async function GET(req: NextRequest) {
-  const sp = req.nextUrl.searchParams;
+  const sp = req.nextUrl.searchParams
 
   try {
     const data = await discoverMovies({
@@ -18,12 +18,12 @@ export async function GET(req: NextRequest) {
       "vote_average.gte": sp.get("rating_min") ?? undefined,
       "vote_average.lte": sp.get("rating_max") ?? undefined,
       "vote_count.gte": sp.get("vote_count_min") ?? "50",
-    });
-    return NextResponse.json(data);
+    })
+    return NextResponse.json(data)
   } catch {
     return NextResponse.json(
       { results: [], total_pages: 0, total_results: 0 },
       { status: 500 }
-    );
+    )
   }
 }

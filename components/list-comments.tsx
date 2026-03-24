@@ -1,32 +1,32 @@
-"use client";
+"use client"
 
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { addComment, deleteComment } from "@/lib/actions/comment-actions";
-import { toast } from "sonner";
+import { useState, useTransition } from "react"
+import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { addComment, deleteComment } from "@/lib/actions/comment-actions"
+import { toast } from "sonner"
 
 interface Comment {
-  id: string;
-  body: string;
-  createdAt: Date;
+  id: string
+  body: string
+  createdAt: Date
   user: {
-    id: string;
-    username: string | null;
-    imageUrl: string | null;
-  };
+    id: string
+    username: string | null
+    imageUrl: string | null
+  }
   replies: {
-    id: string;
-    body: string;
-    createdAt: Date;
+    id: string
+    body: string
+    createdAt: Date
     user: {
-      id: string;
-      username: string | null;
-      imageUrl: string | null;
-    };
-  }[];
+      id: string
+      username: string | null
+      imageUrl: string | null
+    }
+  }[]
 }
 
 export function ListComments({
@@ -35,57 +35,59 @@ export function ListComments({
   currentUserId,
   isSignedIn,
 }: {
-  listId: string;
-  comments: Comment[];
-  currentUserId: string | null;
-  isSignedIn: boolean;
+  listId: string
+  comments: Comment[]
+  currentUserId: string | null
+  isSignedIn: boolean
 }) {
-  const router = useRouter();
-  const [body, setBody] = useState("");
-  const [replyTo, setReplyTo] = useState<string | null>(null);
-  const [replyBody, setReplyBody] = useState("");
-  const [isPending, startTransition] = useTransition();
+  const router = useRouter()
+  const [body, setBody] = useState("")
+  const [replyTo, setReplyTo] = useState<string | null>(null)
+  const [replyBody, setReplyBody] = useState("")
+  const [isPending, startTransition] = useTransition()
 
   const handleSubmit = (parentId?: string) => {
-    const text = parentId ? replyBody : body;
-    if (!text.trim()) return;
+    const text = parentId ? replyBody : body
+    if (!text.trim()) return
 
     startTransition(async () => {
       try {
-        await addComment(listId, text, parentId);
+        await addComment(listId, text, parentId)
         if (parentId) {
-          setReplyBody("");
-          setReplyTo(null);
+          setReplyBody("")
+          setReplyTo(null)
         } else {
-          setBody("");
+          setBody("")
         }
-        router.refresh();
-        toast.success("Comment added");
+        router.refresh()
+        toast.success("Comment added")
       } catch {
-        toast.error("Failed to add comment");
+        toast.error("Failed to add comment")
       }
-    });
-  };
+    })
+  }
 
   const handleDelete = (commentId: string) => {
     startTransition(async () => {
       try {
-        await deleteComment(commentId);
-        router.refresh();
-        toast.success("Comment deleted");
+        await deleteComment(commentId)
+        router.refresh()
+        toast.success("Comment deleted")
       } catch {
-        toast.error("Failed to delete comment");
+        toast.error("Failed to delete comment")
       }
-    });
-  };
+    })
+  }
 
   const timeAgo = (date: Date) => {
-    const seconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000);
-    if (seconds < 60) return "just now";
-    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-    return `${Math.floor(seconds / 86400)}d ago`;
-  };
+    const seconds = Math.floor(
+      (new Date().getTime() - new Date(date).getTime()) / 1000
+    )
+    if (seconds < 60) return "just now"
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`
+    return `${Math.floor(seconds / 86400)}d ago`
+  }
 
   return (
     <div className="space-y-6">
@@ -114,7 +116,7 @@ export function ListComments({
           </div>
         </div>
       ) : (
-        <p className="text-muted-foreground text-sm">
+        <p className="text-sm text-muted-foreground">
           Sign in to leave a comment.
         </p>
       )}
@@ -123,7 +125,7 @@ export function ListComments({
       <div className="space-y-4">
         {comments.map((comment) => (
           <div key={comment.id} className="space-y-3">
-            <div className="bg-card rounded-lg border p-4">
+            <div className="rounded-lg border bg-card p-4">
               <div className="flex items-start gap-3">
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={comment.user.imageUrl ?? undefined} />
@@ -136,19 +138,19 @@ export function ListComments({
                     <span className="text-sm font-medium">
                       {comment.user.username ?? "User"}
                     </span>
-                    <span className="text-muted-foreground text-xs">
+                    <span className="text-xs text-muted-foreground">
                       {timeAgo(comment.createdAt)}
                     </span>
                   </div>
-                  <p className="mt-1 text-sm whitespace-pre-wrap">{comment.body}</p>
+                  <p className="mt-1 text-sm whitespace-pre-wrap">
+                    {comment.body}
+                  </p>
                   <div className="mt-2 flex items-center gap-2">
                     {isSignedIn && (
                       <button
-                        className="text-muted-foreground hover:text-foreground text-xs"
+                        className="text-xs text-muted-foreground hover:text-foreground"
                         onClick={() =>
-                          setReplyTo(
-                            replyTo === comment.id ? null : comment.id
-                          )
+                          setReplyTo(replyTo === comment.id ? null : comment.id)
                         }
                       >
                         Reply
@@ -156,7 +158,7 @@ export function ListComments({
                     )}
                     {currentUserId === comment.user.id && (
                       <button
-                        className="text-muted-foreground hover:text-destructive text-xs"
+                        className="text-xs text-muted-foreground hover:text-destructive"
                         onClick={() => handleDelete(comment.id)}
                       >
                         Delete
@@ -183,8 +185,8 @@ export function ListComments({
                     variant="ghost"
                     size="sm"
                     onClick={() => {
-                      setReplyTo(null);
-                      setReplyBody("");
+                      setReplyTo(null)
+                      setReplyBody("")
                     }}
                   >
                     Cancel
@@ -204,7 +206,10 @@ export function ListComments({
             {comment.replies.length > 0 && (
               <div className="ml-10 space-y-2">
                 {comment.replies.map((reply) => (
-                  <div key={reply.id} className="bg-muted/50 rounded-lg border p-3">
+                  <div
+                    key={reply.id}
+                    className="rounded-lg border bg-muted/50 p-3"
+                  >
                     <div className="flex items-start gap-3">
                       <Avatar className="h-6 w-6">
                         <AvatarImage src={reply.user.imageUrl ?? undefined} />
@@ -217,14 +222,16 @@ export function ListComments({
                           <span className="text-xs font-medium">
                             {reply.user.username ?? "User"}
                           </span>
-                          <span className="text-muted-foreground text-[10px]">
+                          <span className="text-[10px] text-muted-foreground">
                             {timeAgo(reply.createdAt)}
                           </span>
                         </div>
-                        <p className="mt-0.5 text-sm whitespace-pre-wrap">{reply.body}</p>
+                        <p className="mt-0.5 text-sm whitespace-pre-wrap">
+                          {reply.body}
+                        </p>
                         {currentUserId === reply.user.id && (
                           <button
-                            className="text-muted-foreground hover:text-destructive mt-1 text-xs"
+                            className="mt-1 text-xs text-muted-foreground hover:text-destructive"
                             onClick={() => handleDelete(reply.id)}
                           >
                             Delete
@@ -240,5 +247,5 @@ export function ListComments({
         ))}
       </div>
     </div>
-  );
+  )
 }

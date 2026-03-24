@@ -1,29 +1,29 @@
-import { notFound } from "next/navigation";
-import type { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
-import { auth } from "@clerk/nextjs/server";
-import { db } from "@/lib/db";
-import { tmdbImageUrl } from "@/lib/tmdb";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { LikeButton } from "@/components/like-button";
-import { ForkButton } from "@/components/fork-button";
-import { ListComments } from "@/components/list-comments";
+import { notFound } from "next/navigation"
+import type { Metadata } from "next"
+import Image from "next/image"
+import Link from "next/link"
+import { auth } from "@clerk/nextjs/server"
+import { db } from "@/lib/db"
+import { tmdbImageUrl } from "@/lib/tmdb"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import { LikeButton } from "@/components/like-button"
+import { ForkButton } from "@/components/fork-button"
+import { ListComments } from "@/components/list-comments"
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string }>
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug } = await params
   const list = await db.movieList.findUnique({
     where: { slug, isPublic: true },
     select: { name: true, description: true, aiDescription: true },
-  });
+  })
 
-  if (!list) return { title: "List Not Found" };
+  if (!list) return { title: "List Not Found" }
 
   return {
     title: `${list.name} — CineList`,
@@ -31,15 +31,15 @@ export async function generateMetadata({
       list.aiDescription ||
       list.description ||
       `A curated movie list on CineList`,
-  };
+  }
 }
 
 export default async function PublicListPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string }>
 }) {
-  const { slug } = await params;
+  const { slug } = await params
 
   const list = await db.movieList.findUnique({
     where: { slug, isPublic: true },
@@ -49,7 +49,11 @@ export default async function PublicListPage({
       tags: { select: { name: true } },
       _count: { select: { likes: true, forks: true } },
       forkedFrom: {
-        select: { slug: true, name: true, user: { select: { username: true } } },
+        select: {
+          slug: true,
+          name: true,
+          user: { select: { username: true } },
+        },
       },
       comments: {
         where: { parentId: null },
@@ -65,25 +69,25 @@ export default async function PublicListPage({
         orderBy: { createdAt: "desc" },
       },
     },
-  });
+  })
 
-  if (!list) notFound();
+  if (!list) notFound()
 
   // Check if current user has liked this list
-  let hasLiked = false;
-  let currentUserId: string | null = null;
-  const { userId: clerkId } = await auth();
+  let hasLiked = false
+  let currentUserId: string | null = null
+  const { userId: clerkId } = await auth()
   if (clerkId) {
     const dbUser = await db.user.findUnique({
       where: { clerkId },
       select: { id: true },
-    });
+    })
     if (dbUser) {
-      currentUserId = dbUser.id;
+      currentUserId = dbUser.id
       const like = await db.listLike.findUnique({
         where: { userId_listId: { userId: dbUser.id, listId: list.id } },
-      });
-      hasLiked = !!like;
+      })
+      hasLiked = !!like
     }
   }
 
@@ -91,7 +95,7 @@ export default async function PublicListPage({
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
       {/* Forked from */}
       {list.forkedFrom && (
-        <div className="text-muted-foreground mb-4 flex items-center gap-2 text-sm">
+        <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="14"
@@ -112,7 +116,7 @@ export default async function PublicListPage({
           Forked from{" "}
           <Link
             href={`/lists/${list.forkedFrom.slug}`}
-            className="text-foreground font-medium hover:underline"
+            className="font-medium text-foreground hover:underline"
           >
             {list.forkedFrom.name}
           </Link>
@@ -137,7 +141,7 @@ export default async function PublicListPage({
                     {(list.user.username ?? "U")[0].toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <span className="text-muted-foreground text-sm">
+                <span className="text-sm text-muted-foreground">
                   {list.user.username ?? "User"}
                 </span>
               </div>
@@ -181,7 +185,7 @@ export default async function PublicListPage({
 
       {/* AI Description */}
       {list.aiDescription && (
-        <div className="bg-muted/50 mb-6 rounded-lg border p-4">
+        <div className="mb-6 rounded-lg border bg-muted/50 p-4">
           <div className="mb-1 flex items-center gap-2">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -201,7 +205,7 @@ export default async function PublicListPage({
               AI-generated description
             </span>
           </div>
-          <p className="text-muted-foreground text-sm italic">
+          <p className="text-sm text-muted-foreground italic">
             {list.aiDescription}
           </p>
         </div>
@@ -209,7 +213,7 @@ export default async function PublicListPage({
 
       {/* User Description */}
       {list.description && (
-        <p className="text-muted-foreground mb-6">{list.description}</p>
+        <p className="mb-6 text-muted-foreground">{list.description}</p>
       )}
 
       <Separator className="mb-8" />
@@ -217,14 +221,14 @@ export default async function PublicListPage({
       {/* Movie Grid */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         {list.items.map((item) => {
-          const posterUrl = tmdbImageUrl(item.posterPath, "w342");
+          const posterUrl = tmdbImageUrl(item.posterPath, "w342")
           return (
             <Link
               key={item.id}
               href={`/movies/${item.tmdbId}`}
               className="group"
             >
-              <div className="bg-muted relative aspect-[2/3] overflow-hidden rounded-lg">
+              <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-muted">
                 {posterUrl ? (
                   <Image
                     src={posterUrl}
@@ -252,18 +256,18 @@ export default async function PublicListPage({
                 )}
               </div>
               <div className="mt-2">
-                <p className="text-sm font-medium leading-tight line-clamp-2">
+                <p className="line-clamp-2 text-sm leading-tight font-medium">
                   {item.title}
                 </p>
-                <p className="text-muted-foreground text-xs">{item.year}</p>
+                <p className="text-xs text-muted-foreground">{item.year}</p>
                 {item.notes && (
-                  <p className="text-muted-foreground mt-0.5 text-[11px] italic line-clamp-2">
+                  <p className="mt-0.5 line-clamp-2 text-[11px] text-muted-foreground italic">
                     {item.notes}
                   </p>
                 )}
               </div>
             </Link>
-          );
+          )
         })}
       </div>
 
@@ -276,5 +280,5 @@ export default async function PublicListPage({
         isSignedIn={!!clerkId}
       />
     </div>
-  );
+  )
 }
