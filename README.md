@@ -304,6 +304,46 @@ middleware.ts        — Clerk auth middleware (protects /dashboard)
 
 - [Production Deployment Guide](./docs/deployment.md)
 - [Update & Rollback Procedures](./docs/update-rollback.md)
+- [Linting & Static Analysis](./docs/linting.md)
+- [Documentation Generation](./docs/generate_docs.md)
+- [API Reference (generated)](./docs-generated/) — run `npm run docs` to generate
+
+### Code Documentation Standards
+
+All contributors must follow these documentation practices:
+
+**Every exported function** must have a TSDoc comment with:
+- Description of what the function does
+- `@param` for each parameter
+- `@returns` for the return value
+- `@throws` for error conditions
+- `@example` for non-trivial functions
+
+```ts
+/**
+ * Adds a movie to the user's watchlist, or removes it if already present.
+ * @param movie - Movie data including TMDB ID, title, poster, and year
+ * @returns `true` if added, `false` if removed
+ * @throws Error if user is not authenticated
+ * @example
+ * ```ts
+ * const added = await toggleWatchlist({ tmdbId: 550, title: "Fight Club", posterPath: "/poster.jpg", year: "1999" })
+ * ```
+ */
+```
+
+**Every module** (`lib/*.ts`) must have a module-level docblock:
+
+```ts
+/**
+ * @module tmdb
+ * @description TMDB API v3 wrapper with typed responses and built-in caching.
+ */
+```
+
+**Interfaces and types** must have per-property documentation for non-obvious fields.
+
+**Run `npm run docs:check`** before committing to verify documentation coverage.
 
 ## License
 

@@ -1,6 +1,7 @@
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
+import jsdoc from "eslint-plugin-jsdoc";
 
 const eslintConfig = defineConfig([
   ...nextVitals,
@@ -43,6 +44,32 @@ const eslintConfig = defineConfig([
     },
   },
 
+  // JSDoc quality rules for lib/ files
+  {
+    files: ["lib/**/*.ts"],
+    plugins: { jsdoc },
+    rules: {
+      "jsdoc/require-jsdoc": [
+        "warn",
+        {
+          require: { FunctionDeclaration: true, ArrowFunctionExpression: false },
+          publicOnly: true,
+        },
+      ],
+      "jsdoc/require-description": "warn",
+      "jsdoc/require-param-description": "warn",
+      "jsdoc/require-returns-description": "warn",
+      "jsdoc/check-param-names": [
+        "warn",
+        { checkDestructured: false },
+      ],
+      "jsdoc/check-tag-names": [
+        "warn",
+        { definedTags: ["typeParam", "module"] },
+      ],
+    },
+  },
+
   // Override default ignores
   globalIgnores([
     ".next/**",
@@ -53,6 +80,7 @@ const eslintConfig = defineConfig([
     "node_modules/**",
     "backups/**",
     "scripts/**",
+    "docs-generated/**",
   ]),
 ]);
 

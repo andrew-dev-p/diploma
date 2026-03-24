@@ -46,3 +46,6 @@ next-env.d.ts
 
 # database backups
 /backups/
+
+# generated documentation
+/docs-generated/
