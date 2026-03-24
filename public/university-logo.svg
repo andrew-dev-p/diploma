@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <rect width="120" height="120" rx="12" fill="#1a1a2e"/>
+  <text x="60" y="45" font-family="serif" font-size="14" fill="#e0e0e0" text-anchor="middle" font-weight="bold">КПІ</text>
+  <text x="60" y="62" font-family="serif" font-size="9" fill="#a0a0b0" text-anchor="middle">ім. Ігоря</text>
+  <text x="60" y="75" font-family="serif" font-size="9" fill="#a0a0b0" text-anchor="middle">Сікорського</text>
+  <rect x="20" y="88" width="80" height="1" fill="#be185d"/>
+  <text x="60" y="105" font-family="sans-serif" font-size="8" fill="#707080" text-anchor="middle">НТУУ</text>
+</svg>
