@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { syncUser } from "@/lib/user-sync";
 import { generateRecommendations } from "@/lib/ai";
 import { searchMovies } from "@/lib/tmdb";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   const { userId: clerkId } = await auth();
