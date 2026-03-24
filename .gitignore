@@ -28,9 +28,15 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# prisma
+/prisma/generated
+
 # env files
 .env*.local
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# clerk configuration (can include secrets)
+/.clerk/
