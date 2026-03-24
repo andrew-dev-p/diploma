@@ -20,9 +20,12 @@
 import { auth } from "@clerk/nextjs/server"
 import { db } from "@/lib/db"
 import { syncUser } from "@/lib/user-sync"
+import { createModuleLogger } from "@/lib/logger"
 import { revalidatePath } from "next/cache"
 import slugify from "slugify"
 import { nanoid } from "nanoid"
+
+const log = createModuleLogger("list-actions")
 
 /**
  * Creates a new movie list for the authenticated user.
@@ -39,7 +42,10 @@ import { nanoid } from "nanoid"
  */
 export async function createList(formData: FormData) {
   const { userId: clerkId } = await auth()
-  if (!clerkId) throw new Error("Unauthorized")
+  if (!clerkId) {
+    log.warn("Unauthorized list creation attempt")
+    throw new Error("Unauthorized")
+  }
 
   const user = await syncUser()
   if (!user) throw new Error("User sync failed")
@@ -48,6 +54,8 @@ export async function createList(formData: FormData) {
   const description = (formData.get("description") as string) || null
   const baseSlug = slugify(name, { lower: true, strict: true })
   const slug = `${baseSlug}-${nanoid(6)}`
+
+  log.info({ userId: user.id, name, slug }, "Creating new list")
 
   const list = await db.movieList.create({
     data: {

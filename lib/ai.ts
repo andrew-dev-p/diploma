@@ -13,8 +13,10 @@
  */
 
 import { GoogleGenAI } from "@google/genai"
+import { createModuleLogger } from "@/lib/logger"
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! })
+const log = createModuleLogger("ai")
 
 /**
  * Generates a short, engaging description for a user-created movie list.
@@ -42,14 +44,21 @@ export async function generateListDescription(
   listName: string,
   movies: { title: string; year: string }[]
 ) {
+  log.info({ listName, movieCount: movies.length }, "Generating list description")
   const movieTitles = movies.map((m) => `${m.title} (${m.year})`).join(", ")
 
-  const response = await ai.models.generateContent({
-    model: "gemini-2.0-flash",
-    contents: `Write a short, engaging description (2-3 sentences) for a movie list called "${listName}" containing these movies: ${movieTitles}. The description should capture the theme or mood that connects these films. Write in a warm, cinephile-friendly tone. Do not use markdown formatting.`,
-  })
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: `Write a short, engaging description (2-3 sentences) for a movie list called "${listName}" containing these movies: ${movieTitles}. The description should capture the theme or mood that connects these films. Write in a warm, cinephile-friendly tone. Do not use markdown formatting.`,
+    })
 
-  return response.text ?? null
+    log.info({ listName, hasResult: !!response.text }, "List description generated")
+    return response.text ?? null
+  } catch (err) {
+    log.error({ err, listName }, "Failed to generate list description")
+    return null
+  }
 }
 
 /**
