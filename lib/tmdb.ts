@@ -57,10 +57,15 @@ interface TMDBFetchOptions {
  * @internal
  */
 async function tmdbFetch<T>({ path, params }: TMDBFetchOptions): Promise<T> {
+  const { createModuleLogger } = await import("@/lib/logger")
+  const log = createModuleLogger("tmdb")
+
   const url = new URL(`${TMDB_BASE}${path}`)
   if (params) {
     Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v))
   }
+
+  log.debug({ path, params }, "TMDB API request")
 
   const res = await fetch(url.toString(), {
     headers: {
@@ -71,9 +76,14 @@ async function tmdbFetch<T>({ path, params }: TMDBFetchOptions): Promise<T> {
   })
 
   if (!res.ok) {
+    log.error(
+      { path, status: res.status, statusText: res.statusText },
+      "TMDB API request failed"
+    )
     throw new Error(`TMDB API error: ${res.status} ${res.statusText}`)
   }
 
+  log.debug({ path, status: res.status }, "TMDB API response OK")
   return res.json() as Promise<T>
 }
 
