@@ -74,25 +74,11 @@ export default async function PersonPage({
         new Date(a.release_date).getTime()
     );
 
-  const age = person.birthday
-    ? Math.floor(
-        (Date.now() -
-          new Date(
-            person.deathday ?? person.birthday
-          ).getTime()) /
-          (365.25 * 24 * 60 * 60 * 1000) +
-          (person.deathday
-            ? (new Date(person.deathday).getTime() -
-                new Date(person.birthday).getTime()) /
-              (365.25 * 24 * 60 * 60 * 1000)
-            : 0)
-      )
-    : null;
-
-  // Simpler age calculation
+  // Calculate age using the current date at request time (SSR-safe)
+  const now = new Date();
   const calcAge = person.birthday
     ? Math.floor(
-        (new Date(person.deathday ?? Date.now()).getTime() -
+        (new Date(person.deathday ?? now.toISOString()).getTime() -
           new Date(person.birthday).getTime()) /
           (365.25 * 24 * 60 * 60 * 1000)
       )
