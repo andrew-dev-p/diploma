@@ -1,37 +1,37 @@
-"use client";
+"use client"
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { createList } from "@/lib/actions/list-actions";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { toast } from "sonner";
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { createList } from "@/lib/actions/list-actions"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { toast } from "sonner"
 
 export default function NewListPage() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
 
     try {
-      const formData = new FormData(e.currentTarget);
-      const name = formData.get("name") as string;
+      const formData = new FormData(e.currentTarget)
+      const name = formData.get("name") as string
       if (!name.trim()) {
-        toast.error("Please enter a list name");
-        setLoading(false);
-        return;
+        toast.error("Please enter a list name")
+        setLoading(false)
+        return
       }
 
-      const result = await createList(formData);
-      toast.success("List created!");
-      router.push(`/dashboard/lists/${result.id}`);
+      const result = await createList(formData)
+      toast.success("List created!")
+      router.push(`/dashboard/lists/${result.id}`)
     } catch {
-      toast.error("Failed to create list");
-      setLoading(false);
+      toast.error("Failed to create list")
+      setLoading(false)
     }
   }
 
@@ -86,5 +86,5 @@ export default function NewListPage() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

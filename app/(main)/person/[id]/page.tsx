@@ -1,50 +1,50 @@
-import { notFound } from "next/navigation";
-import Image from "next/image";
-import type { Metadata } from "next";
-import { getPerson, getPersonMovieCredits, tmdbImageUrl } from "@/lib/tmdb";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { MovieCard } from "@/components/movie-card";
+import { notFound } from "next/navigation"
+import Image from "next/image"
+import type { Metadata } from "next"
+import { getPerson, getPersonMovieCredits, tmdbImageUrl } from "@/lib/tmdb"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import { MovieCard } from "@/components/movie-card"
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string }>
 }): Promise<Metadata> {
-  const { id } = await params;
+  const { id } = await params
   try {
-    const person = await getPerson(parseInt(id));
+    const person = await getPerson(parseInt(id))
     return {
       title: `${person.name} — CineList`,
       description: person.biography?.slice(0, 160),
-    };
+    }
   } catch {
-    return { title: "Person Not Found" };
+    return { title: "Person Not Found" }
   }
 }
 
 export default async function PersonPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string }>
 }) {
-  const { id } = await params;
+  const { id } = await params
 
-  let person;
-  let movieCredits;
+  let person
+  let movieCredits
   try {
-    [person, movieCredits] = await Promise.all([
+    ;[person, movieCredits] = await Promise.all([
       getPerson(parseInt(id)),
       getPersonMovieCredits(parseInt(id)),
-    ]);
+    ])
   } catch {
-    notFound();
+    notFound()
   }
 
-  const profileUrl = tmdbImageUrl(person.profile_path, "w500");
+  const profileUrl = tmdbImageUrl(person.profile_path, "w500")
 
   // Known for: sorted by popularity, deduplicated
-  const seenIds = new Set<number>();
+  const seenIds = new Set<number>()
   const allCredits = [
     ...movieCredits.cast.map((c) => ({
       ...c,
@@ -58,38 +58,36 @@ export default async function PersonPage({
     })),
   ]
     .filter((c) => {
-      if (seenIds.has(c.id)) return false;
-      seenIds.add(c.id);
-      return c.poster_path && c.release_date;
+      if (seenIds.has(c.id)) return false
+      seenIds.add(c.id)
+      return c.poster_path && c.release_date
     })
-    .sort((a, b) => b.popularity - a.popularity);
+    .sort((a, b) => b.popularity - a.popularity)
 
-  const knownFor = allCredits.slice(0, 8);
+  const knownFor = allCredits.slice(0, 8)
 
   // Full filmography sorted by release date (newest first)
-  const filmography = allCredits
-    .sort(
-      (a, b) =>
-        new Date(b.release_date).getTime() -
-        new Date(a.release_date).getTime()
-    );
+  const filmography = allCredits.sort(
+    (a, b) =>
+      new Date(b.release_date).getTime() - new Date(a.release_date).getTime()
+  )
 
   // Calculate age using the current date at request time (SSR-safe)
-  const now = new Date();
+  const now = new Date()
   const calcAge = person.birthday
     ? Math.floor(
         (new Date(person.deathday ?? now.toISOString()).getTime() -
           new Date(person.birthday).getTime()) /
           (365.25 * 24 * 60 * 60 * 1000)
       )
-    : null;
+    : null
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="flex flex-col gap-8 md:flex-row">
         {/* Photo */}
         <div className="shrink-0">
-          <div className="bg-muted relative aspect-[2/3] w-48 overflow-hidden rounded-xl md:w-64">
+          <div className="relative aspect-[2/3] w-48 overflow-hidden rounded-xl bg-muted md:w-64">
             {profileUrl ? (
               <Image
                 src={profileUrl}
@@ -129,7 +127,8 @@ export default async function PersonPage({
             <Badge variant="secondary">{person.known_for_department}</Badge>
             {person.birthday && (
               <Badge variant="outline">
-                Born {new Date(person.birthday).toLocaleDateString("en-US", {
+                Born{" "}
+                {new Date(person.birthday).toLocaleDateString("en-US", {
                   month: "long",
                   day: "numeric",
                   year: "numeric",
@@ -139,7 +138,8 @@ export default async function PersonPage({
             )}
             {person.deathday && (
               <Badge variant="outline">
-                Died {new Date(person.deathday).toLocaleDateString("en-US", {
+                Died{" "}
+                {new Date(person.deathday).toLocaleDateString("en-US", {
                   month: "long",
                   day: "numeric",
                   year: "numeric",
@@ -154,13 +154,13 @@ export default async function PersonPage({
 
           {person.biography && (
             <div className="mt-4">
-              <p className="text-muted-foreground leading-relaxed line-clamp-[8]">
+              <p className="line-clamp-[8] leading-relaxed text-muted-foreground">
                 {person.biography}
               </p>
             </div>
           )}
 
-          <div className="text-muted-foreground mt-3 text-sm">
+          <div className="mt-3 text-sm text-muted-foreground">
             {filmography.length} credits
           </div>
         </div>
@@ -170,7 +170,7 @@ export default async function PersonPage({
       {knownFor.length > 0 && (
         <>
           <Separator className="my-8" />
-          <h2 className="font-heading mb-4 text-xl font-bold">Known For</h2>
+          <h2 className="mb-4 font-heading text-xl font-bold">Known For</h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
             {knownFor.map((m) => (
               <MovieCard
@@ -190,15 +190,15 @@ export default async function PersonPage({
       {filmography.length > 0 && (
         <>
           <Separator className="my-8" />
-          <h2 className="font-heading mb-4 text-xl font-bold">Filmography</h2>
+          <h2 className="mb-4 font-heading text-xl font-bold">Filmography</h2>
           <div className="space-y-2">
             {filmography.map((m) => (
               <a
                 key={`${m.id}-${m.role}`}
                 href={`/movies/${m.id}`}
-                className="bg-card hover:bg-accent flex items-center gap-3 rounded-lg border p-3 transition-colors"
+                className="flex items-center gap-3 rounded-lg border bg-card p-3 transition-colors hover:bg-accent"
               >
-                <div className="bg-muted relative h-16 w-11 shrink-0 overflow-hidden rounded">
+                <div className="relative h-16 w-11 shrink-0 overflow-hidden rounded bg-muted">
                   {m.poster_path ? (
                     <Image
                       src={tmdbImageUrl(m.poster_path, "w92")!}
@@ -208,14 +208,14 @@ export default async function PersonPage({
                       sizes="44px"
                     />
                   ) : (
-                    <div className="bg-muted flex h-full w-full items-center justify-center text-xs">
+                    <div className="flex h-full w-full items-center justify-center bg-muted text-xs">
                       ?
                     </div>
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{m.title}</p>
-                  <p className="text-muted-foreground text-xs">
+                  <p className="text-xs text-muted-foreground">
                     {m.release_date?.split("-")[0]}
                     {m.role && ` · ${m.role}`}
                   </p>
@@ -231,5 +231,5 @@ export default async function PersonPage({
         </>
       )}
     </div>
-  );
+  )
 }

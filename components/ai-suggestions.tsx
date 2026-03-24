@@ -1,19 +1,19 @@
-"use client";
+"use client"
 
-import { useState, useCallback } from "react";
-import Image from "next/image";
-import { tmdbImageUrl } from "@/lib/tmdb";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import { cn } from "@/lib/utils";
+import { useState, useCallback } from "react"
+import Image from "next/image"
+import { tmdbImageUrl } from "@/lib/tmdb"
+import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
+import { cn } from "@/lib/utils"
 
 interface Suggestion {
-  tmdbId: number;
-  title: string;
-  posterPath: string | null;
-  year: string;
-  rating: number;
-  reason: string;
+  tmdbId: number
+  title: string
+  posterPath: string | null
+  year: string
+  rating: number
+  reason: string
 }
 
 export function AISuggestions({
@@ -21,37 +21,37 @@ export function AISuggestions({
   onAdd,
   disabled,
 }: {
-  listId: string;
+  listId: string
   onAdd: (movie: {
-    tmdbId: number;
-    title: string;
-    posterPath: string | null;
-    year: string;
-  }) => void;
-  disabled?: boolean;
+    tmdbId: number
+    title: string
+    posterPath: string | null
+    year: string
+  }) => void
+  disabled?: boolean
 }) {
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [visible, setVisible] = useState(false);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([])
+  const [loading, setLoading] = useState(false)
+  const [visible, setVisible] = useState(false)
 
   const fetchSuggestions = useCallback(async () => {
-    setLoading(true);
+    setLoading(true)
     try {
       const res = await fetch("/api/ai/list-suggestions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ listId }),
-      });
-      if (!res.ok) throw new Error();
-      const data = await res.json();
-      setSuggestions(data.suggestions);
-      setVisible(true);
+      })
+      if (!res.ok) throw new Error()
+      const data = await res.json()
+      setSuggestions(data.suggestions)
+      setVisible(true)
     } catch {
-      toast.error("Failed to get suggestions");
+      toast.error("Failed to get suggestions")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, [listId]);
+  }, [listId])
 
   if (!visible) {
     return (
@@ -84,7 +84,7 @@ export function AISuggestions({
         </svg>
         {loading ? "Thinking..." : "AI Suggestions"}
       </Button>
-    );
+    )
   }
 
   return (
@@ -128,13 +128,13 @@ export function AISuggestions({
         </div>
       </div>
       {suggestions.map((s) => {
-        const posterUrl = tmdbImageUrl(s.posterPath, "w92");
+        const posterUrl = tmdbImageUrl(s.posterPath, "w92")
         return (
           <div
             key={s.tmdbId}
-            className="bg-primary/5 border-primary/20 animate-in fade-in flex items-center gap-3 rounded-lg border border-dashed p-3"
+            className="flex animate-in items-center gap-3 rounded-lg border border-dashed border-primary/20 bg-primary/5 p-3 fade-in"
           >
-            <div className="bg-muted relative h-14 w-10 shrink-0 overflow-hidden rounded">
+            <div className="relative h-14 w-10 shrink-0 overflow-hidden rounded bg-muted">
               {posterUrl ? (
                 <Image
                   src={posterUrl}
@@ -151,7 +151,7 @@ export function AISuggestions({
             </div>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium">{s.title}</p>
-              <p className="text-muted-foreground text-xs">
+              <p className="text-xs text-muted-foreground">
                 {s.year} · {s.reason}
               </p>
             </div>
@@ -165,17 +165,17 @@ export function AISuggestions({
                   title: s.title,
                   posterPath: s.posterPath,
                   year: s.year,
-                });
+                })
                 setSuggestions((prev) =>
                   prev.filter((p) => p.tmdbId !== s.tmdbId)
-                );
+                )
               }}
             >
               + Add
             </Button>
           </div>
-        );
+        )
       })}
     </div>
-  );
+  )
 }

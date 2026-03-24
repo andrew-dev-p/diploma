@@ -1,10 +1,10 @@
-import { currentUser } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs/server"
 
-import { db } from "@/lib/db";
+import { db } from "@/lib/db"
 
 export async function syncUser() {
-  const clerkUser = await currentUser();
-  if (!clerkUser) return null;
+  const clerkUser = await currentUser()
+  if (!clerkUser) return null
 
   const user = await db.user.upsert({
     where: { clerkId: clerkUser.id },
@@ -19,7 +19,7 @@ export async function syncUser() {
       username: clerkUser.username,
       imageUrl: clerkUser.imageUrl,
     },
-  });
+  })
 
-  return user;
+  return user
 }

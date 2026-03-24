@@ -1,23 +1,23 @@
-import { db } from "@/lib/db";
-import { ListCard } from "@/components/list-card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
+import { db } from "@/lib/db"
+import { ListCard } from "@/components/list-card"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import Link from "next/link"
 
 export const metadata = {
   title: "Explore Lists — CineList",
   description: "Discover curated movie lists from the community.",
-};
+}
 
 export default async function ExplorePage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; tag?: string; page?: string }>;
+  searchParams: Promise<{ q?: string; tag?: string; page?: string }>
 }) {
-  const { q: search, tag, page: pageParam } = await searchParams;
-  const page = parseInt(pageParam ?? "1");
-  const perPage = 12;
+  const { q: search, tag, page: pageParam } = await searchParams
+  const page = parseInt(pageParam ?? "1")
+  const perPage = 12
 
   const where = {
     isPublic: true,
@@ -25,7 +25,7 @@ export default async function ExplorePage({
       ? { name: { contains: search, mode: "insensitive" as const } }
       : {}),
     ...(tag ? { tags: { some: { name: tag } } } : {}),
-  };
+  }
 
   const [lists, total, popularTags] = await Promise.all([
     db.movieList.findMany({
@@ -48,25 +48,25 @@ export default async function ExplorePage({
     db.listTag.findMany({
       select: { name: true },
     }),
-  ]);
+  ])
 
   // Aggregate tag counts
-  const tagCountMap: Record<string, number> = {};
+  const tagCountMap: Record<string, number> = {}
   for (const t of popularTags) {
-    tagCountMap[t.name] = (tagCountMap[t.name] ?? 0) + 1;
+    tagCountMap[t.name] = (tagCountMap[t.name] ?? 0) + 1
   }
   const aggregatedTags = Object.entries(tagCountMap)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 15)
-    .map(([name, count]) => ({ name, _count: { name: count } }));
+    .map(([name, count]) => ({ name, _count: { name: count } }))
 
-  const totalPages = Math.ceil(total / perPage);
+  const totalPages = Math.ceil(total / perPage)
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="mb-8">
         <h1 className="font-heading text-3xl font-bold">Explore Lists</h1>
-        <p className="text-muted-foreground mt-1 text-sm">
+        <p className="mt-1 text-sm text-muted-foreground">
           Discover curated movie collections from the community.
         </p>
       </div>
@@ -109,11 +109,13 @@ export default async function ExplorePage({
       {/* Active filter */}
       {tag && (
         <div className="mb-6 flex items-center gap-2">
-          <span className="text-muted-foreground text-sm">Filtered by tag:</span>
+          <span className="text-sm text-muted-foreground">
+            Filtered by tag:
+          </span>
           <Badge variant="secondary" className="gap-1">
             {tag}
             <Link href={search ? `/explore?q=${search}` : "/explore"}>
-              <span className="hover:text-destructive ml-1">×</span>
+              <span className="ml-1 hover:text-destructive">×</span>
             </Link>
           </Badge>
         </div>
@@ -121,7 +123,7 @@ export default async function ExplorePage({
 
       {/* Results */}
       {lists.length === 0 ? (
-        <div className="text-muted-foreground py-16 text-center">
+        <div className="py-16 text-center text-muted-foreground">
           <p className="text-lg">No public lists found.</p>
           {(search || tag) && (
             <p className="mt-1 text-sm">Try a different search or filter.</p>
@@ -158,7 +160,7 @@ export default async function ExplorePage({
                   </Button>
                 </Link>
               )}
-              <span className="text-muted-foreground text-sm">
+              <span className="text-sm text-muted-foreground">
                 Page {page} of {totalPages}
               </span>
               {page < totalPages && (
@@ -175,5 +177,5 @@ export default async function ExplorePage({
         </>
       )}
     </div>
-  );
+  )
 }

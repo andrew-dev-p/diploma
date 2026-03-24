@@ -1,14 +1,14 @@
-"use client";
+"use client"
 
-import { useOptimistic, useTransition } from "react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { toggleLike } from "@/lib/actions/list-actions";
+import { useOptimistic, useTransition } from "react"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+import { toggleLike } from "@/lib/actions/list-actions"
 
 interface LikeButtonProps {
-  listId: string;
-  initialLiked: boolean;
-  initialCount: number;
+  listId: string
+  initialLiked: boolean
+  initialCount: number
 }
 
 export function LikeButton({
@@ -16,20 +16,20 @@ export function LikeButton({
   initialLiked,
   initialCount,
 }: LikeButtonProps) {
-  const [isPending, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition()
   const [optimistic, setOptimistic] = useOptimistic(
     { liked: initialLiked, count: initialCount },
     (state) => ({
       liked: !state.liked,
       count: state.liked ? state.count - 1 : state.count + 1,
     })
-  );
+  )
 
   function handleClick() {
     startTransition(async () => {
-      setOptimistic(optimistic);
-      await toggleLike(listId);
-    });
+      setOptimistic(optimistic)
+      await toggleLike(listId)
+    })
   }
 
   return (
@@ -58,5 +58,5 @@ export function LikeButton({
       </svg>
       {optimistic.count > 0 && <span>{optimistic.count}</span>}
     </Button>
-  );
+  )
 }

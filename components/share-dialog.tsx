@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import { useState } from "react";
+import { useState } from "react"
 import {
   Dialog,
   DialogContent,
@@ -8,18 +8,18 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import { toast } from "sonner";
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Switch } from "@/components/ui/switch"
+import { toast } from "sonner"
 
 interface ShareDialogProps {
-  listId: string;
-  slug: string;
-  isPublic: boolean;
-  onTogglePublic: (isPublic: boolean) => Promise<void>;
-  children: React.ReactNode;
+  listId: string
+  slug: string
+  isPublic: boolean
+  onTogglePublic: (isPublic: boolean) => Promise<void>
+  children: React.ReactNode
 }
 
 export function ShareDialog({
@@ -28,30 +28,30 @@ export function ShareDialog({
   onTogglePublic,
   children,
 }: ShareDialogProps) {
-  const [publicState, setPublicState] = useState(isPublic);
-  const [toggling, setToggling] = useState(false);
+  const [publicState, setPublicState] = useState(isPublic)
+  const [toggling, setToggling] = useState(false)
 
   const shareUrl =
     typeof window !== "undefined"
       ? `${window.location.origin}/lists/${slug}`
-      : `/lists/${slug}`;
+      : `/lists/${slug}`
 
   async function handleToggle(checked: boolean) {
-    setToggling(true);
+    setToggling(true)
     try {
-      await onTogglePublic(checked);
-      setPublicState(checked);
-      toast.success(checked ? "List is now public" : "List is now private");
+      await onTogglePublic(checked)
+      setPublicState(checked)
+      toast.success(checked ? "List is now public" : "List is now private")
     } catch {
-      toast.error("Failed to update visibility");
+      toast.error("Failed to update visibility")
     } finally {
-      setToggling(false);
+      setToggling(false)
     }
   }
 
   function copyLink() {
-    navigator.clipboard.writeText(shareUrl);
-    toast.success("Link copied to clipboard!");
+    navigator.clipboard.writeText(shareUrl)
+    toast.success("Link copied to clipboard!")
   }
 
   return (
@@ -70,7 +70,7 @@ export function ShareDialog({
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium">Public</p>
-              <p className="text-muted-foreground text-xs">
+              <p className="text-xs text-muted-foreground">
                 Anyone with the link can view this list
               </p>
             </div>
@@ -98,5 +98,5 @@ export function ShareDialog({
         </div>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

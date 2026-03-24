@@ -1,22 +1,22 @@
-"use client";
+"use client"
 
-import Image from "next/image";
-import Link from "next/link";
-import { tmdbImageUrl } from "@/lib/tmdb";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import Image from "next/image"
+import Link from "next/link"
+import { tmdbImageUrl } from "@/lib/tmdb"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 
 interface MovieCardProps {
-  id: number;
-  title: string;
-  posterPath: string | null;
-  year?: string;
-  rating?: number;
-  onAdd?: () => void;
-  onRemove?: () => void;
-  compact?: boolean;
-  hideLink?: boolean;
+  id: number
+  title: string
+  posterPath: string | null
+  year?: string
+  rating?: number
+  onAdd?: () => void
+  onRemove?: () => void
+  compact?: boolean
+  hideLink?: boolean
 }
 
 export function MovieCard({
@@ -30,7 +30,7 @@ export function MovieCard({
   compact = false,
   hideLink = false,
 }: MovieCardProps) {
-  const imageUrl = tmdbImageUrl(posterPath, "w342");
+  const imageUrl = tmdbImageUrl(posterPath, "w342")
 
   const card = (
     <div
@@ -42,7 +42,7 @@ export function MovieCard({
       {/* Poster */}
       <div
         className={cn(
-          "bg-muted relative overflow-hidden rounded-lg",
+          "relative overflow-hidden rounded-lg bg-muted",
           compact ? "h-24 w-16 shrink-0" : "aspect-[2/3] w-full"
         )}
       >
@@ -52,7 +52,11 @@ export function MovieCard({
             alt={title}
             fill
             className="object-cover transition-transform group-hover:scale-105"
-            sizes={compact ? "64px" : "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"}
+            sizes={
+              compact
+                ? "64px"
+                : "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+            }
           />
         ) : (
           <div className="flex h-full items-center justify-center">
@@ -93,9 +97,9 @@ export function MovieCard({
                 variant="secondary"
                 className="w-full"
                 onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onAdd();
+                  e.preventDefault()
+                  e.stopPropagation()
+                  onAdd()
                 }}
               >
                 + Add to List
@@ -107,9 +111,9 @@ export function MovieCard({
                 variant="destructive"
                 className="w-full"
                 onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  onRemove();
+                  e.preventDefault()
+                  e.stopPropagation()
+                  onRemove()
                 }}
               >
                 Remove
@@ -123,17 +127,15 @@ export function MovieCard({
       <div className={cn("flex flex-col", compact ? "justify-center" : "mt-2")}>
         <h3
           className={cn(
-            "font-medium leading-tight",
-            compact ? "text-sm" : "text-sm line-clamp-2"
+            "leading-tight font-medium",
+            compact ? "text-sm" : "line-clamp-2 text-sm"
           )}
         >
           {title}
         </h3>
-        {year && (
-          <p className="text-muted-foreground mt-0.5 text-xs">{year}</p>
-        )}
+        {year && <p className="mt-0.5 text-xs text-muted-foreground">{year}</p>}
         {compact && rating !== undefined && rating > 0 && (
-          <p className="text-muted-foreground mt-0.5 text-xs">
+          <p className="mt-0.5 text-xs text-muted-foreground">
             {rating.toFixed(1)}
           </p>
         )}
@@ -145,11 +147,11 @@ export function MovieCard({
           <Button
             size="icon"
             variant="ghost"
-            className="text-muted-foreground hover:text-destructive h-8 w-8"
+            className="h-8 w-8 text-muted-foreground hover:text-destructive"
             onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onRemove();
+              e.preventDefault()
+              e.stopPropagation()
+              onRemove()
             }}
           >
             <svg
@@ -170,13 +172,13 @@ export function MovieCard({
         </div>
       )}
     </div>
-  );
+  )
 
-  if (hideLink) return card;
+  if (hideLink) return card
 
   return (
     <Link href={`/movies/${id}`} className="block">
       {card}
     </Link>
-  );
+  )
 }

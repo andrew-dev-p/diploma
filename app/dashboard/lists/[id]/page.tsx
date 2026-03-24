@@ -1,17 +1,17 @@
-import { notFound, redirect } from "next/navigation";
-import { syncUser } from "@/lib/user-sync";
-import { db } from "@/lib/db";
-import { ListEditor } from "@/components/list-editor";
+import { notFound, redirect } from "next/navigation"
+import { syncUser } from "@/lib/user-sync"
+import { db } from "@/lib/db"
+import { ListEditor } from "@/components/list-editor"
 
 export default async function EditListPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string }>
 }) {
-  const { id } = await params;
+  const { id } = await params
 
-  const user = await syncUser();
-  if (!user) redirect("/sign-in");
+  const user = await syncUser()
+  if (!user) redirect("/sign-in")
 
   const list = await db.movieList.findUnique({
     where: { id, userId: user.id },
@@ -20,9 +20,9 @@ export default async function EditListPage({
       tags: { select: { name: true } },
       forkedFrom: { select: { slug: true } },
     },
-  });
+  })
 
-  if (!list) notFound();
+  if (!list) notFound()
 
   return (
     <ListEditor
@@ -46,5 +46,5 @@ export default async function EditListPage({
       }))}
       tags={list.tags.map((t) => t.name)}
     />
-  );
+  )
 }

@@ -1,29 +1,29 @@
-import Link from "next/link";
-import type { Metadata } from "next";
-import { discoverMovies, getGenres } from "@/lib/tmdb";
-import { MovieCard } from "@/components/movie-card";
-import { DiscoverFilters } from "@/components/discover-filters";
-import { Button } from "@/components/ui/button";
+import Link from "next/link"
+import type { Metadata } from "next"
+import { discoverMovies, getGenres } from "@/lib/tmdb"
+import { MovieCard } from "@/components/movie-card"
+import { DiscoverFilters } from "@/components/discover-filters"
+import { Button } from "@/components/ui/button"
 
 export const metadata: Metadata = {
   title: "Discover Movies — CineList",
   description: "Explore movies by genre, year, rating, and more.",
-};
+}
 
 export default async function DiscoverPage({
   searchParams,
 }: {
   searchParams: Promise<{
-    genre?: string;
-    year_from?: string;
-    year_to?: string;
-    rating_min?: string;
-    sort?: string;
-    page?: string;
-  }>;
+    genre?: string
+    year_from?: string
+    year_to?: string
+    rating_min?: string
+    sort?: string
+    page?: string
+  }>
 }) {
-  const sp = await searchParams;
-  const page = parseInt(sp.page ?? "1");
+  const sp = await searchParams
+  const page = parseInt(sp.page ?? "1")
 
   const [genresData, moviesData] = await Promise.all([
     getGenres(),
@@ -40,24 +40,24 @@ export default async function DiscoverPage({
       "vote_average.gte": sp.rating_min ?? undefined,
       "vote_count.gte": "50",
     }),
-  ]);
+  ])
 
   const buildUrl = (p: number) => {
-    const params = new URLSearchParams();
-    if (sp.genre) params.set("genre", sp.genre);
-    if (sp.year_from) params.set("year_from", sp.year_from);
-    if (sp.year_to) params.set("year_to", sp.year_to);
-    if (sp.rating_min) params.set("rating_min", sp.rating_min);
-    if (sp.sort) params.set("sort", sp.sort);
-    params.set("page", String(p));
-    return `/discover?${params.toString()}`;
-  };
+    const params = new URLSearchParams()
+    if (sp.genre) params.set("genre", sp.genre)
+    if (sp.year_from) params.set("year_from", sp.year_from)
+    if (sp.year_to) params.set("year_to", sp.year_to)
+    if (sp.rating_min) params.set("rating_min", sp.rating_min)
+    if (sp.sort) params.set("sort", sp.sort)
+    params.set("page", String(p))
+    return `/discover?${params.toString()}`
+  }
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="mb-8">
         <h1 className="font-heading text-3xl font-bold">Discover Movies</h1>
-        <p className="text-muted-foreground mt-1 text-sm">
+        <p className="mt-1 text-sm text-muted-foreground">
           Explore movies by genre, year, rating, and more.
         </p>
       </div>
@@ -86,7 +86,7 @@ export default async function DiscoverPage({
       </div>
 
       {moviesData.results.length === 0 && (
-        <div className="text-muted-foreground py-16 text-center">
+        <div className="py-16 text-center text-muted-foreground">
           No movies found with these filters.
         </div>
       )}
@@ -101,7 +101,7 @@ export default async function DiscoverPage({
               </Button>
             </Link>
           )}
-          <span className="text-muted-foreground text-sm">
+          <span className="text-sm text-muted-foreground">
             Page {page} of {Math.min(moviesData.total_pages, 500)}
           </span>
           {page < moviesData.total_pages && page < 500 && (
@@ -114,5 +114,5 @@ export default async function DiscoverPage({
         </div>
       )}
     </div>
-  );
+  )
 }

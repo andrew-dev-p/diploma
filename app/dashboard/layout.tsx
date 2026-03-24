@@ -1,9 +1,9 @@
-import { Navbar } from "@/components/navbar";
+import { Navbar } from "@/components/navbar"
 
 export default function DashboardLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
     <div className="flex min-h-svh flex-col">
@@ -12,5 +12,5 @@ export default function DashboardLayout({
         {children}
       </main>
     </div>
-  );
+  )
 }

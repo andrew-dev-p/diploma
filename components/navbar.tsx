@@ -1,40 +1,40 @@
-"use client";
+"use client"
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { SignInButton, UserButton, useAuth } from "@clerk/nextjs";
-import { useTheme } from "next-themes";
-import { Button } from "@/components/ui/button";
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { SignInButton, UserButton, useAuth } from "@clerk/nextjs"
+import { useTheme } from "next-themes"
+import { Button } from "@/components/ui/button"
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet";
-import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
-import { useState } from "react";
+} from "@/components/ui/sheet"
+import { Separator } from "@/components/ui/separator"
+import { cn } from "@/lib/utils"
+import { useState } from "react"
 
 const navLinks = [
   { href: "/discover", label: "Discover" },
   { href: "/explore", label: "Explore Lists" },
   { href: "/dashboard", label: "My Lists", authRequired: true },
   { href: "/dashboard/watchlist", label: "Watchlist", authRequired: true },
-];
+]
 
 export function Navbar() {
-  const { isSignedIn } = useAuth();
-  const pathname = usePathname();
-  const { theme, setTheme } = useTheme();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const { isSignedIn } = useAuth()
+  const pathname = usePathname()
+  const { theme, setTheme } = useTheme()
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   const filteredLinks = navLinks.filter(
     (link) => !link.authRequired || isSignedIn
-  );
+  )
 
   return (
-    <header className="bg-background/80 sticky top-0 z-50 border-b backdrop-blur-sm">
+    <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-sm">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
@@ -50,8 +50,8 @@ export function Navbar() {
               key={link.href}
               href={link.href}
               className={cn(
-                "text-muted-foreground hover:text-foreground rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                pathname.startsWith(link.href) && "text-foreground bg-accent"
+                "rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
+                pathname.startsWith(link.href) && "bg-accent text-foreground"
               )}
             >
               {link.label}
@@ -152,9 +152,9 @@ export function Navbar() {
                     href={link.href}
                     onClick={() => setMobileOpen(false)}
                     className={cn(
-                      "text-muted-foreground hover:text-foreground rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                      "rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
                       pathname.startsWith(link.href) &&
-                        "text-foreground bg-accent"
+                        "bg-accent text-foreground"
                     )}
                   >
                     {link.label}
@@ -178,5 +178,5 @@ export function Navbar() {
         </div>
       </div>
     </header>
-  );
+  )
 }

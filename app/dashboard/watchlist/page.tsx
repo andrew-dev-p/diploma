@@ -1,28 +1,28 @@
-import { redirect } from "next/navigation";
-import { syncUser } from "@/lib/user-sync";
-import { db } from "@/lib/db";
-import { MovieCard } from "@/components/movie-card";
+import { redirect } from "next/navigation"
+import { syncUser } from "@/lib/user-sync"
+import { db } from "@/lib/db"
+import { MovieCard } from "@/components/movie-card"
 
 export default async function WatchlistPage() {
-  const user = await syncUser();
-  if (!user) redirect("/sign-in");
+  const user = await syncUser()
+  if (!user) redirect("/sign-in")
 
   const items = await db.watchlistItem.findMany({
     where: { userId: user.id },
     orderBy: { createdAt: "desc" },
-  });
+  })
 
   return (
     <div>
       <div className="mb-8">
         <h1 className="font-heading text-3xl font-bold">Watchlist</h1>
-        <p className="text-muted-foreground mt-1 text-sm">
+        <p className="mt-1 text-sm text-muted-foreground">
           {items.length} {items.length === 1 ? "movie" : "movies"} to watch
         </p>
       </div>
 
       {items.length === 0 ? (
-        <div className="text-muted-foreground rounded-lg border border-dashed py-16 text-center">
+        <div className="rounded-lg border border-dashed py-16 text-center text-muted-foreground">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="48"
@@ -31,7 +31,7 @@ export default async function WatchlistPage() {
             fill="none"
             stroke="currentColor"
             strokeWidth="1"
-            className="text-muted-foreground/50 mx-auto mb-4"
+            className="mx-auto mb-4 text-muted-foreground/50"
           >
             <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
           </svg>
@@ -54,5 +54,5 @@ export default async function WatchlistPage() {
         </div>
       )}
     </div>
-  );
+  )
 }
