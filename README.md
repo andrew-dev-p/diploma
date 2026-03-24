@@ -2,6 +2,62 @@
 
 Web application for creating and sharing movie lists, powered by TMDB API and AI-generated personalized content.
 
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                        Client                           │
+│                   (Browser / Mobile)                    │
+└──────────────────────────┬──────────────────────────────┘
+                           │ HTTPS
+┌──────────────────────────▼──────────────────────────────┐
+│                    Vercel Edge Network                  │
+│               (CDN + Edge Middleware)                   │
+│            Clerk auth middleware (JWT check)            │
+└──────────────────────────┬──────────────────────────────┘
+                           │
+┌──────────────────────────▼──────────────────────────────┐
+│              Next.js 16 Application Server              │
+│                    (Node.js runtime)                    │
+│                                                         │
+│  ┌─────────────┐  ┌──────────────┐  ┌───────────────┐  │
+│  │ App Router  │  │ API Routes   │  │ Server Actions│  │
+│  │ (SSR/RSC)   │  │ /api/*       │  │ (mutations)   │  │
+│  └──────┬──────┘  └──────┬───────┘  └───────┬───────┘  │
+│         │                │                  │           │
+│  ┌──────▼────────────────▼──────────────────▼───────┐  │
+│  │              Prisma 7 ORM (pg adapter)           │  │
+│  └──────────────────────┬───────────────────────────┘  │
+└─────────────────────────┼───────────────────────────────┘
+                          │
+          ┌───────────────┼───────────────┐
+          │               │               │
+┌─────────▼────┐ ┌───────▼──────┐ ┌──────▼───────┐
+│  PostgreSQL  │ │   TMDB API   │ │ Google Gemini│
+│   (Neon)     │ │  (REST API)  │ │  (GenAI SDK) │
+│  Database    │ │  Movie data  │ │  AI content  │
+└──────────────┘ └──────────────┘ └──────────────┘
+                          │
+                 ┌────────▼────────┐
+                 │   Clerk (Auth)  │
+                 │  Google OAuth   │
+                 │  User management│
+                 └─────────────────┘
+```
+
+### Components
+
+| Component | Role | Technology |
+|-----------|------|------------|
+| **Web/Application Server** | SSR, API routes, server actions | Next.js 16 on Vercel (Node.js) |
+| **Database** | User data, lists, ratings, comments, watch history | PostgreSQL (Neon serverless) |
+| **Auth Provider** | Authentication, session management, user profiles | Clerk (Google OAuth) |
+| **Movie Data API** | Film metadata, cast, crew, images, trailers | TMDB REST API |
+| **AI Service** | List descriptions, movie recommendations, trending analysis | Google Gemini (via @google/genai) |
+| **CDN / Edge** | Static assets, image optimization, middleware | Vercel Edge Network |
+
+> **Note:** The project does not use a separate file storage, caching service, or message queue. Static assets are served via Vercel's CDN, and Next.js built-in `fetch` cache handles API response caching.
+
 ## Features
 
 - **Movie Discovery** — browse trending, search by title, and filter by genre/year/rating via TMDB
@@ -30,30 +86,130 @@ Web application for creating and sharing movie lists, powered by TMDB API and AI
 | AI         | Google Gemini (via @google/genai)            |
 | Deployment | Vercel (recommended)                         |
 
-## Getting Started
+## Developer Onboarding Guide
 
-### Prerequisites
+This guide assumes a **fresh operating system** with no pre-installed development tools.
 
-- Node.js 20+
-- PostgreSQL database (e.g. [Neon](https://neon.tech) free tier)
-- [Clerk](https://clerk.com) account
-- [TMDB API](https://www.themoviedb.org/settings/api) access token
-- [Google AI Studio](https://aistudio.google.com/apikey) API key
+### Step 1: Install required software
 
-### 1. Clone and install
+#### macOS
+
+```bash
+# Install Homebrew (package manager)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Install Node.js 20+ (via nvm - recommended)
+brew install nvm
+mkdir ~/.nvm
+echo 'export NVM_DIR="$HOME/.nvm"' >> ~/.zshrc
+echo '[ -s "$(brew --prefix nvm)/nvm.sh" ] && . "$(brew --prefix nvm)/nvm.sh"' >> ~/.zshrc
+source ~/.zshrc
+nvm install 22
+nvm use 22
+
+# Install Git (if not already present)
+brew install git
+```
+
+#### Ubuntu / Debian
+
+```bash
+# Update packages
+sudo apt update && sudo apt upgrade -y
+
+# Install Git
+sudo apt install -y git curl
+
+# Install Node.js 22 via nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+source ~/.bashrc
+nvm install 22
+nvm use 22
+```
+
+#### Windows
+
+```powershell
+# Install nvm-windows from https://github.com/coreybutler/nvm-windows/releases
+# Then in a new terminal:
+nvm install 22
+nvm use 22
+
+# Install Git from https://git-scm.com/download/win
+```
+
+#### Verify installations
+
+```bash
+node --version    # Should be v20+ (recommended v22)
+npm --version     # Should be v10+
+git --version     # Should be v2+
+```
+
+### Step 2: Clone the repository
 
 ```bash
 git clone https://github.com/andrew-dev-p/diploma.git
 cd diploma
+```
+
+### Step 3: Install dependencies
+
+```bash
 npm install
 ```
 
-### 2. Configure environment
+This installs all packages listed in `package.json` including Next.js, React, Prisma, Clerk, etc.
+
+### Step 4: Set up external services
+
+You need accounts on 4 services (all have free tiers):
+
+#### 4.1 PostgreSQL Database — [Neon](https://neon.tech)
+
+1. Sign up at [neon.tech](https://neon.tech)
+2. Create a new project (any name, choose closest region)
+3. Copy the connection string from the dashboard — it looks like:
+   ```
+   postgresql://user:password@ep-xxx.region.aws.neon.tech/dbname?sslmode=require
+   ```
+
+#### 4.2 Authentication — [Clerk](https://clerk.com)
+
+1. Sign up at [clerk.com](https://clerk.com)
+2. Create a new application
+3. Go to **Configure → Social Connections** → enable **Google**
+4. Copy keys from **API Keys** page:
+   - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` (starts with `pk_test_`)
+   - `CLERK_SECRET_KEY` (starts with `sk_test_`)
+
+#### 4.3 Movie Data — [TMDB](https://www.themoviedb.org)
+
+1. Create account at [themoviedb.org](https://www.themoviedb.org)
+2. Go to **Settings → API** → request an API key
+3. Copy the **API Read Access Token** (long Bearer token, NOT the short API key)
+
+#### 4.4 AI — [Google AI Studio](https://aistudio.google.com)
+
+1. Go to [aistudio.google.com/apikey](https://aistudio.google.com/apikey)
+2. Create an API key (starts with `AI`)
+
+### Step 5: Configure environment variables
 
 Create `.env.local` in the project root:
 
+```bash
+cp .env.example .env.local
+# Then edit .env.local with your actual values
+```
+
+Or create it manually with all required variables:
+
 ```env
-# Clerk
+# Database (Neon PostgreSQL)
+DATABASE_URL=postgresql://user:pass@ep-xxx.region.aws.neon.tech/dbname?sslmode=require
+
+# Clerk Authentication
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
 CLERK_SECRET_KEY=sk_test_...
 NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
@@ -61,59 +217,93 @@ NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
 NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/dashboard
 NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/dashboard
 
-# Database
-DATABASE_URL=postgresql://user:pass@host/dbname?sslmode=require
+# TMDB API
+TMDB_ACCESS_TOKEN=eyJhbGciOiJIUzI1NiJ9...
 
-# TMDB
-TMDB_ACCESS_TOKEN=eyJ...
-
-# Google Gemini
+# Google Gemini AI
 GEMINI_API_KEY=AI...
 ```
 
-### 3. Set up database
+### Step 6: Set up the database
+
+Push the Prisma schema to create all tables:
 
 ```bash
 npx prisma db push
 ```
 
-### 4. Run
+To explore the database visually:
+
+```bash
+npx prisma studio
+```
+
+### Step 7: Run the development server
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000). The app should load with the homepage showing trending movies.
+
+### Step 8: Verify everything works
+
+- [ ] Homepage loads and shows trending movies from TMDB
+- [ ] Sign in with Google works (redirects to `/dashboard`)
+- [ ] Creating a new list works
+- [ ] Searching and adding movies to a list works
+- [ ] AI description generation works (click "AI Description" on a list)
 
 ## Project Structure
 
 ```
 app/
-  (main)/          — public pages (home, explore, movie details, person, list view)
-  dashboard/       — authenticated pages (my lists, watchlist, history)
-  api/             — API routes (TMDB proxy, AI endpoints, webhooks)
-  sign-in/         — Clerk auth pages
+  (main)/            — public pages (home, explore, movie details, person, list view)
+  dashboard/         — authenticated pages (my lists, watchlist, history)
+  api/               — API routes (TMDB proxy, AI endpoints, webhooks)
+  thesis/            — bachelor thesis landing page
+  sign-in/           — Clerk auth pages
   sign-up/
-components/        — React components (UI + feature)
+components/          — React components (UI + feature)
+  ui/                — shadcn/ui base components
+docs/                — deployment and operations documentation
 lib/
-  actions/         — server actions (lists, movies, comments)
-  ai.ts            — Gemini AI client
-  db.ts            — Prisma client
-  tmdb.ts          — TMDB API wrapper
-  user-sync.ts     — Clerk <-> DB user sync
+  actions/           — server actions (lists, movies, comments)
+  ai.ts              — Gemini AI client
+  db.ts              — Prisma client singleton
+  tmdb.ts            — TMDB API wrapper
+  user-sync.ts       — Clerk ↔ DB user sync
 prisma/
-  schema.prisma    — database schema
+  schema.prisma      — database schema (12 models)
+scripts/             — automation scripts (dev, prod, backup)
+public/              — static assets (university logo)
+middleware.ts        — Clerk auth middleware (protects /dashboard)
 ```
 
 ## Scripts
 
-| Command            | Description              |
-| ------------------ | ------------------------ |
-| `npm run dev`      | Start dev server         |
-| `npm run build`    | Production build         |
-| `npm run lint`     | Run ESLint               |
-| `npm run format`   | Format with Prettier     |
-| `npm run typecheck`| TypeScript type check    |
+| Command            | Description                        |
+| ------------------ | ---------------------------------- |
+| `npm run dev`      | Start dev server (Turbopack)       |
+| `npm run build`    | Production build                   |
+| `npm run start`    | Start production server            |
+| `npm run lint`     | Run ESLint                         |
+| `npm run format`   | Format with Prettier               |
+| `npm run typecheck`| TypeScript type check              |
+
+### Prisma commands
+
+| Command                    | Description                          |
+| -------------------------- | ------------------------------------ |
+| `npx prisma db push`      | Sync schema to database (dev)        |
+| `npx prisma migrate dev`  | Create a migration (production-ready)|
+| `npx prisma generate`     | Regenerate Prisma Client types       |
+| `npx prisma studio`       | Open database GUI in browser         |
+
+## Documentation
+
+- [Production Deployment Guide](./docs/deployment.md)
+- [Update & Rollback Procedures](./docs/update-rollback.md)
 
 ## License
 
